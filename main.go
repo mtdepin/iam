@@ -1,7 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"mt-iam/api"
+)
 
 func main() {
-	fmt.Println("hellp")
+	fmt.Println("server start")
+	api.InitRouter()
 }

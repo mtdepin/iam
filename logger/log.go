@@ -1,8 +1,14 @@
 package logger
 
-func Error(msg string, data ...interface{}) {}
+import "fmt"
 
-func Info(msg string, data ...interface{}) {}
+func Error(msg string, data ...interface{}) {
+	fmt.Println(msg)
+}
+
+func Info(msg string, data ...interface{}) {
+	fmt.Println(msg)
+}
 func FatalIf(msg string, data ...interface{}) {
-
+	fmt.Println(msg)
 }
