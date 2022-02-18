@@ -54,6 +54,7 @@ var errNoSuchServiceAccount = errors.New("Specified service account does not exi
 
 // error returned in IAM subsystem when groups doesn't exist.
 var errNoSuchGroup = errors.New("Specified group does not exist")
+var errSkipFile = errors.New("skip this file")
 
 // error returned in IAM subsystem when a non-empty group needs to be
 // deleted.

@@ -8,9 +8,9 @@ import (
 )
 
 func IsAllowed(c *gin.Context) {
-	var sy *internal.IAMSys
+
 	var args *iampolicy.Args
 	c.BindJSON(&args)
-	allowed := sy.IsAllowed(*args)
+	allowed := internal.GlobalIAMSys.IsAllowed(*args)
 	c.JSON(http.StatusOK, allowed)
 }

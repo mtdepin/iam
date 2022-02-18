@@ -5,7 +5,9 @@ go 1.16
 require github.com/gin-gonic/gin v1.7.7
 
 require (
+	github.com/dustin/go-humanize v1.0.0
 	github.com/fsnotify/fsnotify v1.5.1
+	github.com/go-ldap/ldap/v3 v3.4.2
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/ipfs/go-ipfs-util v0.0.2
 	github.com/json-iterator/go v1.1.12
