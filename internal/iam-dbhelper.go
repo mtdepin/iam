@@ -2940,7 +2940,7 @@ func (sys *IAMSys) GetCombinedPolicy(policies ...string) iampolicy.Policy {
 		} else {
 			dbPolicy, err := loadPolicyFromDB(pname)
 			if err != nil && err != errNoSuchPolicy {
-				logger.FatalIf("err", "load policy from db failed")
+				logger.FatalIf("load policy from db failed", err)
 			}
 			availablePolicies = append(availablePolicies, dbPolicy)
 		}
@@ -3128,7 +3128,7 @@ func setDefaultCannedPolicies(policies map[string]iampolicy.Policy) {
 	if len(wo) == 0 {
 		err := saveDefaultPolicies("writeonly", WriteOnly)
 		if err != nil {
-			logger.FatalIf("err", "Unable to store writeonly policy")
+			logger.FatalIf("Unable to store writeonly policy", err)
 		}
 	}
 	// readonly policy
@@ -3140,7 +3140,7 @@ func setDefaultCannedPolicies(policies map[string]iampolicy.Policy) {
 	if len(ro) == 0 {
 		err := saveDefaultPolicies("readonly", ReadOnly)
 		if err != nil {
-			logger.FatalIf("err", "Unable to store readonly policy")
+			logger.FatalIf("Unable to store readonly policy", err)
 		}
 	}
 	// readwrite policy
@@ -3152,7 +3152,7 @@ func setDefaultCannedPolicies(policies map[string]iampolicy.Policy) {
 	if len(rw) == 0 {
 		err := saveDefaultPolicies("readwrite", ReadWrite)
 		if err != nil {
-			logger.FatalIf("err", "Unable to store readwrite policy")
+			logger.FatalIf("Unable to store readwrite policy", err)
 		}
 	}
 	// diagnostics policy
@@ -3164,7 +3164,7 @@ func setDefaultCannedPolicies(policies map[string]iampolicy.Policy) {
 	if len(diag) == 0 {
 		err := saveDefaultPolicies("diagnostics", AdminDiagnostics)
 		if err != nil {
-			logger.FatalIf("err", "Unable to store diagnostics policy")
+			logger.FatalIf("Unable to store diagnostics policy", err)
 		}
 	}
 	// consoleAdmin policy
@@ -3176,7 +3176,7 @@ func setDefaultCannedPolicies(policies map[string]iampolicy.Policy) {
 	if len(admin) == 0 {
 		err := saveDefaultPolicies("consoleAdmin", Admin)
 		if err != nil {
-			logger.FatalIf("Unable to store consoleAdmin policy")
+			logger.FatalIf("Unable to store consoleAdmin policy", err)
 		}
 	}
 }

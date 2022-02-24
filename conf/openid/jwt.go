@@ -38,10 +38,6 @@ import (
 	xnet "github.com/minio/pkg/net"
 )
 
-var (
-	ErrTokenExpired = errors.New("token expired")
-)
-
 // Config - OpenID Config
 // RSA authentication target arguments
 type Config struct {
@@ -64,7 +60,6 @@ type Config struct {
 	transport   *http.Transport
 	closeRespFn func(io.ReadCloser)
 }
-type ID string
 
 // LookupUser lookup userid for the provider
 func (r Config) LookupUser(userid string) (provider.User, error) {
