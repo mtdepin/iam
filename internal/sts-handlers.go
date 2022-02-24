@@ -95,7 +95,7 @@ func parseOpenIDParentUser(parentUser string) (userID string, err error) {
 type stsAPIHandlers struct{}
 
 // registerSTSRouter - registers AWS STS compatible APIs.
-func registerSTSRouter(router *mux.Router) {
+func RegisterSTSRouter(router *mux.Router) {
 	// Initialize STS.
 	sts := &stsAPIHandlers{}
 
