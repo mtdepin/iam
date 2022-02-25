@@ -32,6 +32,7 @@ require (
 	github.com/shirou/gopsutil/v3 v3.21.12 // indirect
 	github.com/spf13/viper v1.9.0
 	github.com/tinylib/msgp v1.1.7-0.20211026165309-e818a1881b0e // indirect
+	github.com/valyala/tcplisten v1.0.0
 	go.opencensus.io v0.23.0
 	golang.org/x/crypto v0.0.0-20220128200615-198e4374d7ed // indirect
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
