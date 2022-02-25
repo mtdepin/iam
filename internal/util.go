@@ -28,6 +28,18 @@ const (
 	DEFAULT_USER_QUOTA    = 20
 )
 
+// Returns the mode in which MinIO is running
+func getMinioMode() string {
+	mode := globalMinioModeFS
+	if globalIsDistErasure {
+		mode = globalMinioModeDistErasure
+	} else if globalIsErasure {
+		mode = globalMinioModeErasure
+	} else if globalIsGateway {
+		mode = globalMinioModeGatewayPrefix + globalGatewayName
+	}
+	return mode
+}
 func IamPolicyClaimNameSA() string {
 	return "sa-policy"
 }

@@ -22,6 +22,7 @@ func main() {
 
 	// Enable STS router if etcd is enabled.
 	internal.RegisterSTSRouter(router)
+	internal.RegisterAdminRouter(router)
 	sever := xhttp.NewServer([]string{addr}, router, nil)
 	go func() {
 		sever.Start()

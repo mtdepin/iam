@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"crypto/x509"
 	"github.com/dustin/go-humanize"
 	xldap "mt-iam/conf/ldap"
 	"mt-iam/conf/openid"
@@ -26,6 +27,10 @@ var (
 	globalDomainNames  []string
 	// Deployment ID - unique per deployment
 	globalDeploymentID string
+	// This flag is set to 'true' when MINIO_UPDATE env is set to 'off'. Default is false.
+	globalInplaceUpdateDisabled = false
+	// CA root certificates, a nil value means system certs pool will be used
+	globalRootCAs *x509.CertPool
 	// The maximum allowed time difference between the incoming request
 	// date and server date during signature verification.
 	globalMaxSkewTime   = 150000 * time.Minute // 15 minutes skew allowed.
@@ -37,11 +42,20 @@ var (
 	globalAPIConfig     = apiConfig{listQuorum: 30}
 	//notify cronjob push file to ipfs
 	GlobalNotifyCronJob = make(chan string, 1000)
+	// Indicates if the running minio server is an erasure-code backend.
+	globalIsErasure = false
+	// Indicates if the running minio is in gateway mode.
+	globalIsGateway = false
 )
 
 const (
-	maxLocationConstraintSize = 3 * humanize.MiByte
-	globalWindowsOSName       = "windows"
+	globalMacOSName              = "darwin"
+	globalMinioModeFS            = "mode-server-fs"
+	globalMinioModeErasure       = "mode-server-xl"
+	globalMinioModeDistErasure   = "mode-server-distributed-xl"
+	globalMinioModeGatewayPrefix = "mode-gateway-"
+	maxLocationConstraintSize    = 3 * humanize.MiByte
+	globalWindowsOSName          = "windows"
 	// Refresh interval to update in-memory iam config cache.
 	globalRefreshIAMInterval = 5 * time.Minute
 	globalDirSuffix          = "__XLDIR__"

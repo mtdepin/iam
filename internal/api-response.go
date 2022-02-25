@@ -27,6 +27,19 @@ func writeSuccessResponseXML(w http.ResponseWriter, response []byte) {
 	writeResponse(w, http.StatusOK, response, mimeXML)
 }
 
+// writeErrorResponseJSON - writes error response in JSON format;
+// useful for admin APIs.
+func writeErrorResponseJSON(ctx context.Context, w http.ResponseWriter, err APIError, reqURL *url.URL) {
+	// Generate error response.
+	errorResponse := getAPIErrorResponse(ctx, err, reqURL.Path, w.Header().Get(xhttp.AmzRequestID), globalDeploymentID)
+	encodedErrorResponse := encodeResponseJSON(errorResponse)
+	writeResponse(w, err.HTTPStatusCode, encodedErrorResponse, mimeJSON)
+}
+
+// writeSuccessNoContent writes success headers with http status 204
+func writeSuccessNoContent(w http.ResponseWriter) {
+	writeResponse(w, http.StatusNoContent, nil, mimeNone)
+}
 func writeResponse(w http.ResponseWriter, statusCode int, response []byte, mType mimeType) {
 	setCommonHeaders(w)
 	if mType != mimeNone {
