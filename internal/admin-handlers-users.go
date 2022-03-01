@@ -24,18 +24,265 @@ import (
 	"errors"
 	"github.com/dustin/go-humanize"
 	"github.com/gorilla/mux"
+	"github.com/minio/kes"
 	"github.com/minio/madmin-go"
-	"mt-iam/internal/auth"
-	"mt-iam/logger"
-
 	iampolicy "github.com/minio/pkg/iam/policy"
 	"io"
 	"io/ioutil"
+	"mt-iam/internal/auth"
+	"mt-iam/logger"
 	"net/http"
 )
 
+func toAdminAPIErr(ctx context.Context, err error) APIError {
+	if err == nil {
+		return noError
+	}
+
+	var apiErr APIError
+	switch e := err.(type) {
+	case AdminError:
+		apiErr = APIError{
+			Code:           e.Code,
+			Description:    e.Message,
+			HTTPStatusCode: e.StatusCode,
+		}
+	default:
+		switch {
+		case errors.Is(err, errIAMActionNotAllowed):
+			apiErr = APIError{
+				Code:           "XMinioIAMActionNotAllowed",
+				Description:    err.Error(),
+				HTTPStatusCode: http.StatusForbidden,
+			}
+		case errors.Is(err, errIAMNotInitialized):
+			apiErr = APIError{
+				Code:           "XMinioIAMNotInitialized",
+				Description:    err.Error(),
+				HTTPStatusCode: http.StatusServiceUnavailable,
+			}
+		case errors.Is(err, kes.ErrKeyExists):
+			apiErr = APIError{
+				Code:           "XMinioKMSKeyExists",
+				Description:    err.Error(),
+				HTTPStatusCode: http.StatusConflict,
+			}
+
+		// Tier admin API errors
+		case errors.Is(err, madmin.ErrTierNameEmpty):
+			apiErr = APIError{
+				Code:           "XMinioAdminTierNameEmpty",
+				Description:    err.Error(),
+				HTTPStatusCode: http.StatusBadRequest,
+			}
+		case errors.Is(err, madmin.ErrTierInvalidConfig):
+			apiErr = APIError{
+				Code:           "XMinioAdminTierInvalidConfig",
+				Description:    err.Error(),
+				HTTPStatusCode: http.StatusBadRequest,
+			}
+		case errors.Is(err, madmin.ErrTierInvalidConfigVersion):
+			apiErr = APIError{
+				Code:           "XMinioAdminTierInvalidConfigVersion",
+				Description:    err.Error(),
+				HTTPStatusCode: http.StatusBadRequest,
+			}
+		}
+	}
+	return apiErr
+}
+
+//// AccountInfoHandler returns usage
+//func (a adminAPIHandlers) AccountInfoHandler(w http.ResponseWriter, r *http.Request) {
+//	ctx := newContext(r, w, "AccountInfo")
+//
+//	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
+//
+//	// Get current object layer instance.
+//	objectAPI := newObjectLayerFn()
+//	if objectAPI == nil {
+//		writeErrorResponseJSON(ctx, w, errorCodes.ToAPIErr(ErrServerNotInitialized), r.URL)
+//		return
+//	}
+//
+//	cred, claims, owner, s3Err := validateAdminSignature(ctx, r, "")
+//	if s3Err != ErrNone {
+//		writeErrorResponseJSON(ctx, w, errorCodes.ToAPIErr(s3Err), r.URL)
+//		return
+//	}
+//
+//	// Set prefix value for "s3:prefix" policy conditionals.
+//	r.Header.Set("prefix", "")
+//
+//	// Set delimiter value for "s3:delimiter" policy conditionals.
+//	r.Header.Set("delimiter", SlashSeparator)
+//
+//	// Check if we are asked to return prefix usage
+//	//enablePrefixUsage := r.URL.Query().Get("prefix-usage") == "true"
+//
+//	isAllowedAccess := func(bucketName string) (rd, wr bool) {
+//		//// iam策略验证读权限
+//		//iamrd :=  globalIAMSys.IsAllowed(iampolicy.Args{
+//		//	AccountName:     cred.AccessKey,
+//		//	Groups:          cred.Groups,
+//		//	Action:          iampolicy.ListBucketAction,
+//		//	BucketName:      bucketName,
+//		//	ConditionValues: getConditionValues(r, "", cred.AccessKey, claims),
+//		//	IsOwner:         owner,
+//		//	ObjectName:      "",
+//		//	Claims:          claims,
+//		//})
+//		//// 桶策略验证读权限
+//		//bucketrd := globalPolicySys.IsAllowed(policy.Args{
+//		//	AccountName:     cred.AccessKey,
+//		//	Groups:          cred.Groups,
+//		//	Action:          policy.ListBucketAction,
+//		//	BucketName:      bucketName,
+//		//	ConditionValues: getConditionValues(r, "", cred.AccessKey, claims),
+//		//	IsOwner:         owner,
+//		//	ObjectName:      "",
+//		//})
+//		//// 读权限
+//		//rd = iamrd || bucketrd
+//		//// iam策略验证写权限
+//		//iamwr := globalIAMSys.IsAllowed(iampolicy.Args{
+//		//	AccountName:     cred.AccessKey,
+//		//	Groups:          cred.Groups,
+//		//	Action:          iampolicy.PutObjectAction,
+//		//	BucketName:      bucketName,
+//		//	ConditionValues: getConditionValues(r, "", cred.AccessKey, claims),
+//		//	IsOwner:         owner,
+//		//	ObjectName:      "",
+//		//	Claims:          claims,
+//		//})
+//		//// 桶策略验证写权限
+//		//bucketwr := globalPolicySys.IsAllowed(policy.Args{
+//		//	AccountName:     cred.AccessKey,
+//		//	Groups:          cred.Groups,
+//		//	Action:          policy.PutObjectAction,
+//		//	BucketName:      bucketName,
+//		//	ConditionValues: getConditionValues(r, "", cred.AccessKey, claims),
+//		//	IsOwner:         owner,
+//		//	ObjectName:      "",
+//		//})
+//		//// 写权限
+//		//wr = iamwr || bucketwr
+//		if GlobalIAMSys.IsAllowed(iampolicy.Args{
+//			AccountName:     cred.AccessKey,
+//			Groups:          cred.Groups,
+//			Action:          iampolicy.ListBucketAction,
+//			BucketName:      bucketName,
+//			ConditionValues: getConditionValues(r, "", cred.AccessKey, claims),
+//			IsOwner:         owner,
+//			ObjectName:      "",
+//			Claims:          claims,
+//		}) {
+//			rd = true
+//		}
+//
+//		if GlobalIAMSys.IsAllowed(iampolicy.Args{
+//			AccountName:     cred.AccessKey,
+//			Groups:          cred.Groups,
+//			Action:          iampolicy.PutObjectAction,
+//			BucketName:      bucketName,
+//			ConditionValues: getConditionValues(r, "", cred.AccessKey, claims),
+//			IsOwner:         owner,
+//			ObjectName:      "",
+//			Claims:          claims,
+//		}) {
+//			wr = true
+//		}
+//		return rd, wr
+//	}
+//
+//	var dataUsageInfo madmin.DataUsageInfo
+//	var err error
+//
+//
+//
+//
+//	accountName := cred.AccessKey
+//	var policies []string
+//	switch GlobalIAMSys.usersSysType {
+//	case MinIOUsersSysType:
+//		policies, err = GlobalIAMSys.PolicyDBGet(accountName, false)
+//	case LDAPUsersSysType:
+//		parentUser := accountName
+//		if cred.ParentUser != "" {
+//			parentUser = cred.ParentUser
+//		}
+//		policies, err = GlobalIAMSys.PolicyDBGet(parentUser, false, cred.Groups...)
+//	default:
+//		err = errors.New("should never happen")
+//	}
+//	if err != nil {
+//		logger.LogIf(ctx, err)
+//		writeErrorResponseJSON(ctx, w, toAdminAPIErr(ctx, err), r.URL)
+//		return
+//	}
+//
+//	buf, err := json.MarshalIndent(GlobalIAMSys.GetCombinedPolicy(policies...), "", " ")
+//	if err != nil {
+//		writeErrorResponseJSON(ctx, w, toAdminAPIErr(ctx, err), r.URL)
+//		return
+//	}
+//
+//	acctInfo := madmin.AccountInfo{
+//		AccountName: accountName,
+//		Server:      objectAPI.BackendInfo(),
+//		Policy:      buf,
+//	}
+//
+//	for _, bucket := range buckets {
+//		rd, wr := isAllowedAccess(bucket.Name)
+//		if rd || wr {
+//			// Fetch the data usage of the current bucket
+//			/*
+//				var size uint64
+//				if !dataUsageInfo.LastUpdate.IsZero() {
+//					size = dataUsageInfo.BucketsUsage[bucket.Name].Size
+//				}
+//			*/
+//			var size = dataUsageInfo.BucketSizes[bucket.Name]
+//			// Fetch the prefix usage of the current bucket
+//			//var prefixUsage map[string]uint64
+//			//if enablePrefixUsage {
+//			//	if pu, err := loadPrefixUsageFromBackend(ctx, objectAPI, bucket.Name); err == nil {
+//			//		prefixUsage = pu
+//			//	} else {
+//			//		logger.LogIf(ctx, err)
+//			//	}
+//			//}
+//			acctInfo.Buckets = append(acctInfo.Buckets, madmin.BucketAccessInfo{
+//				Name:        bucket.Name,
+//				Created:     bucket.Created,
+//				Size:        size,
+//				PrefixUsage: map[string]uint64{},
+//				Access: madmin.AccountAccess{
+//					Read:  rd,
+//					Write: wr,
+//				},
+//			})
+//		}
+//	}
+//
+//	usageInfoJSON, err := json.Marshal(acctInfo)
+//	if err != nil {
+//		writeErrorResponseJSON(ctx, w, toAdminAPIErr(ctx, err), r.URL)
+//		return
+//	}
+//
+//	writeSuccessResponseJSON(w, usageInfoJSON)
+//}
 // As per AWS S3 specification, 20KiB policy JSON data is allowed.
 const maxBucketPolicySize = 20 * humanize.KiByte
+
+// Admin API errors
+const (
+	AdminUpdateUnexpectedFailure = "XMinioAdminUpdateUnexpectedFailure"
+	AdminUpdateURLNotReachable   = "XMinioAdminUpdateURLNotReachable"
+	AdminUpdateApplyFailure      = "XMinioAdminUpdateApplyFailure"
+)
 
 func validateAdminUsersReq(ctx context.Context, w http.ResponseWriter, r *http.Request, action iampolicy.AdminAction) (ObjectLayer, auth.Credentials) {
 	var cred auth.Credentials

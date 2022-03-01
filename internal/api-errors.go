@@ -47,6 +47,17 @@ var (
 	errObjectTampered = errors.New("The requested object was modified and may be compromised")
 )
 
+// AdminError - is a generic error for all admin APIs.
+type AdminError struct {
+	Code       string
+	Message    string
+	StatusCode int
+}
+
+func (ae AdminError) Error() string {
+	return ae.Message
+}
+
 // APIError structure
 type APIError struct {
 	Code           string

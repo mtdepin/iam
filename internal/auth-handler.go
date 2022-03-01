@@ -183,6 +183,9 @@ func getSessionToken(r *http.Request) (token string) {
 	}
 	return r.URL.Query().Get(xhttp.AmzSecurityToken)
 }
+func MustGetClaimsFromToken(r *http.Request) map[string]interface{} {
+	return mustGetClaimsFromToken(r)
+}
 
 // Fetch claims in the security token returned by the client, doesn't return
 // errors - upon errors the returned claims map will be empty.
