@@ -67,4 +67,5 @@ const (
 
 func Start() {
 	GlobalIAMSys = NewIAMSys()
+	GlobalIAMSys.InitStore(nil)
 }

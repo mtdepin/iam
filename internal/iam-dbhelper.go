@@ -467,6 +467,8 @@ func (sys *IAMSys) InitStore(objAPI ObjectLayer) {
 	sys.Lock()
 	defer sys.Unlock()
 
+	sys.store = &IAMDBStore{}
+
 	if globalLDAPConfig.Enabled {
 		sys.EnableLDAPSys()
 	}
@@ -480,6 +482,7 @@ func (sys *IAMSys) Initialized() bool {
 	sys.Lock()
 	defer sys.Unlock()
 	return sys.store != nil
+	//return true
 }
 
 // Load - loads all credentials

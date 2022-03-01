@@ -14,7 +14,7 @@ func IsAllowed(c *gin.Context) {
 	allowed := internal.GlobalIAMSys.IsAllowed(*args)
 	c.JSON(http.StatusOK, allowed)
 }
-func MustGetClaimsFromToken(c *gin.Context) {
-	token := internal.MustGetClaimsFromToken(c.Request)
-	c.JSON(http.StatusOK, token)
-}
+//func MustGetClaimsFromToken(c *gin.Context) {
+//	token := MustGetClaimsFromToken(c.Request)
+//	c.JSON(http.StatusOK, token)
+//}

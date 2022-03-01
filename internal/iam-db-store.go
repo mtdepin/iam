@@ -2,17 +2,131 @@ package internal
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"errors"
 	"github.com/minio/pkg/bucket/policy"
 	"github.com/minio/pkg/bucket/policy/condition"
 	iampolicy "github.com/minio/pkg/iam/policy"
+	"gorm.io/gorm"
 	db "mt-iam/datastore"
 	"mt-iam/internal/auth"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
+
+
+// IAMDBStore implements IAMStorageAPI
+type IAMDBStore struct {
+	sync.RWMutex
+	DB *gorm.DB
+}
+
+func (ids *IAMDBStore) lock() {
+	ids.Lock()
+}
+
+func (ids *IAMDBStore) unlock() {
+	ids.Unlock()
+}
+func (ids *IAMDBStore) rlock() {
+	ids.RLock()
+}
+
+func (ids *IAMDBStore) runlock() {
+	ids.RUnlock()
+}
+
+func (ids *IAMDBStore) migrateBackendFormat(context.Context) error {
+	return nil
+}
+
+func (ids *IAMDBStore) loadPolicyDoc(ctx context.Context, policy string, m map[string]iampolicy.Policy) error {
+	return nil
+}
+
+func (ids *IAMDBStore) loadPolicyDocs(ctx context.Context, m map[string]iampolicy.Policy) error {
+	return nil
+}
+
+func (ids *IAMDBStore) loadUser(ctx context.Context, user string, userType IAMUserType, m map[string]auth.Credentials) error {
+	return nil
+}
+
+func (ids *IAMDBStore) loadUsers(ctx context.Context, userType IAMUserType, m map[string]auth.Credentials) error {
+	return nil
+}
+
+func (ids *IAMDBStore) loadGroup(ctx context.Context, group string, m map[string]GroupInfo) error {
+	return nil
+}
+
+func (ids *IAMDBStore) loadGroups(ctx context.Context, m map[string]GroupInfo) error {
+	return nil
+}
+
+func (ids *IAMDBStore) loadMappedPolicy(ctx context.Context, name string, userType IAMUserType, isGroup bool, m map[string]MappedPolicy) error {
+	return nil
+}
+
+func (ids *IAMDBStore) loadMappedPolicies(ctx context.Context, userType IAMUserType, isGroup bool, m map[string]MappedPolicy) error {
+	return nil
+}
+
+func (ids *IAMDBStore) loadAll(ctx context.Context, sys *IAMSys) error {
+	return sys.Load(ctx, ids)
+}
+
+func (ids *IAMDBStore) saveIAMConfig(ctx context.Context, item interface{}, path string, opts ...options) error {
+	return nil
+}
+
+func (ids *IAMDBStore) loadIAMConfig(ctx context.Context, item interface{}, path string) error {
+	return nil
+}
+
+func (ids *IAMDBStore) deleteIAMConfig(ctx context.Context, path string) error {
+	return nil
+}
+
+func (ids *IAMDBStore) savePolicyDoc(ctx context.Context, policyName string, p iampolicy.Policy) error {
+	return nil
+}
+
+func (ids *IAMDBStore) saveMappedPolicy(ctx context.Context, name string, userType IAMUserType, isGroup bool, mp MappedPolicy, opts ...options) error {
+	return nil
+}
+
+func (ids *IAMDBStore) saveUserIdentity(ctx context.Context, name string, userType IAMUserType, u UserIdentity, opts ...options) error {
+	return nil
+}
+
+func (ids *IAMDBStore) saveGroupInfo(ctx context.Context, group string, gi GroupInfo) error {
+	return nil
+}
+
+func (ids *IAMDBStore) deletePolicyDoc(ctx context.Context, policyName string) error {
+	return nil
+}
+
+func (ids *IAMDBStore) deleteMappedPolicy(ctx context.Context, name string, userType IAMUserType, isGroup bool) error {
+	return nil
+}
+
+func (ids *IAMDBStore) deleteUserIdentity(ctx context.Context, name string, userType IAMUserType) error {
+	return nil
+}
+
+func (ids *IAMDBStore) deleteGroupInfo(ctx context.Context, name string) error {
+	return nil
+}
+
+func (ids *IAMDBStore) watch(context.Context, *IAMSys) {
+}
+
+
 
 func loadPolicyFromDB(policyName string) (iampolicy.Policy, error) {
 	policies := db.GetPolicy(policyName)
