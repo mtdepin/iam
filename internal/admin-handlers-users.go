@@ -1277,6 +1277,25 @@ func (a adminAPIHandlers) RemoveCannedPolicy(w http.ResponseWriter, r *http.Requ
 		return
 	}
 }
+func (a adminAPIHandlers) IsAllowed(w http.ResponseWriter, r *http.Request) {
+	ctx := newContext(r, w, "IsAllowed")
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		writeErrorResponse(ctx, w, errorCodes.ToAPIErr(ErrMissingContentLength), r.URL)
+	}
+	var args iampolicy.Args
+	json.Unmarshal(body, &args)
+	allowed := GlobalIAMSys.IsAllowed(args)
+	s := make(map[string]string)
+	s["allowed"] = "false"
+	if allowed {
+		s["allowed"] = "true"
+	}
+	result, _ := json.Marshal(s)
+	writeSuccessResponseJSON(w, result)
+
+}
 
 // AddCannedPolicy - PUT /minio/admin/v3/add-canned-policy?name=<policy_name>
 func (a adminAPIHandlers) AddCannedPolicy(w http.ResponseWriter, r *http.Request) {

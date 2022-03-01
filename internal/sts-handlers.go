@@ -114,11 +114,11 @@ func RegisterSTSRouter(router *mux.Router) {
 	}).HandlerFunc(httpTraceAll(sts.AssumeRole))
 
 	// Assume roles with JWT handler, handles both ClientGrants and WebIdentity.
-	stsRouter.Methods(http.MethodPost).MatcherFunc(func(r *http.Request, rm *mux.RouteMatch) bool {
-		ctypeOk := wildcard.MatchSimple("application/x-www-form-urlencoded*", r.Header.Get(xhttp.ContentType))
-		noQueries := len(r.URL.Query()) == 0
-		return ctypeOk && noQueries
-	}).HandlerFunc(httpTraceAll(sts.AssumeRoleWithSSO))
+	//stsRouter.Methods(http.MethodPost).MatcherFunc(func(r *http.Request, rm *mux.RouteMatch) bool {
+	//	ctypeOk := wildcard.MatchSimple("application/x-www-form-urlencoded*", r.Header.Get(xhttp.ContentType))
+	//	noQueries := len(r.URL.Query()) == 0
+	//	return ctypeOk && noQueries
+	//}).HandlerFunc(httpTraceAll(sts.AssumeRoleWithSSO))
 
 	// AssumeRoleWithClientGrants
 	stsRouter.Methods(http.MethodPost).HandlerFunc(httpTraceAll(sts.AssumeRoleWithClientGrants)).

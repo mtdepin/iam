@@ -118,7 +118,7 @@ func RegisterAdminRouter(router *mux.Router) {
 		//}
 
 		// -- IAM APIs --
-
+		adminRouter.Methods(http.MethodPost).Path(adminVersion + "/is-allowed").HandlerFunc(adminAPI.IsAllowed)
 		// Add policy IAM
 		adminRouter.Methods(http.MethodPut).Path(adminVersion+"/add-canned-policy").HandlerFunc(gz(httpTraceAll(adminAPI.AddCannedPolicy))).Queries("name", "{name:.*}")
 
@@ -229,6 +229,6 @@ func RegisterAdminRouter(router *mux.Router) {
 	}
 
 	// If none of the routes match add default error handler routes
-	adminRouter.NotFoundHandler = httpTraceAll(errorResponseHandler)
+	//adminRouter.NotFoundHandler = httpTraceAll(errorResponseHandler)
 	//adminRouter.MethodNotAllowedHandler = httpTraceAll(methodNotAllowedHandler("Admin"))
 }

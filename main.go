@@ -24,8 +24,8 @@ func main() {
 	addr := ":10001"
 
 	// Enable STS router if etcd is enabled.
-	internal.RegisterSTSRouter(router)
 	internal.RegisterAdminRouter(router)
+	internal.RegisterSTSRouter(router)
 
 	//包装的handler，处理定义之外的请求
 	wrappedHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
