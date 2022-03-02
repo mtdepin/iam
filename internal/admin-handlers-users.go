@@ -1287,11 +1287,12 @@ func (a adminAPIHandlers) IsAllowed(w http.ResponseWriter, r *http.Request) {
 	var args iampolicy.Args
 	json.Unmarshal(body, &args)
 	allowed := GlobalIAMSys.IsAllowed(args)
-	s := make(map[string]string)
-	s["allowed"] = "false"
-	if allowed {
-		s["allowed"] = "true"
-	}
+	s := make(map[string]interface{})
+	s["Allowed"] = allowed
+	//s["allowed"] = "false"
+	//if allowed {
+	//	s["allowed"] = "true"
+	//}
 	result, _ := json.Marshal(s)
 	writeSuccessResponseJSON(w, result)
 
