@@ -16,6 +16,7 @@ const (
 	DBPWD  = "db.db_password"
 )
 
+//dbconfig
 type DBconfig struct {
 	DBName     string `json:"db_name"`
 	DbUrl      string `json:"db_url"`
