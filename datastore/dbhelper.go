@@ -653,7 +653,9 @@ func (c *Credential) StoreTenantInfo(quota int, svcGenFunc func(map[string]inter
 		err = GlobalDB.DB.Transaction(func(tx *gorm.DB) error {
 			m := make(map[string]interface{})
 			m["parent"] = c.AccessKey
-			adminpolicy := iampolicy.DefaultPolicies[3] //Admin
+			//adminpolicy := iampolicy.DefaultPolicies[3] //Admin
+			adminpolicy := iampolicy.Admin
+
 			policyBuf, err := json.Marshal(adminpolicy)
 			if err != nil {
 				logger.Error("json marshal failed")
