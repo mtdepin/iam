@@ -2689,9 +2689,13 @@ func (sys *IAMSys) IsAllowedServiceAccount(args iampolicy.Args, parentUser strin
 		if found {
 			availablePolicies = append(availablePolicies, p)
 		} else if !found && pname == "consoleAdmin" {
-			availablePolicies = append(availablePolicies, iampolicy.DefaultPolicies[3].Definition)
+			//availablePolicies = append(availablePolicies, iampolicy.DefaultPolicies[3].Definition)
+			availablePolicies = append(availablePolicies, iampolicy.Admin)
+
 		} else if !found && pname == "diagnostics" {
-			availablePolicies = append(availablePolicies, iampolicy.DefaultPolicies[2].Definition)
+			//availablePolicies = append(availablePolicies, iampolicy.DefaultPolicies[2].Definition)
+			availablePolicies = append(availablePolicies, iampolicy.AdminDiagnostics)
+
 		}
 	}
 	sys.store.runlock()

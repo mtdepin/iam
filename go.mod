@@ -23,7 +23,8 @@ require (
 	github.com/minio/kes v0.17.6
 	github.com/minio/madmin-go v1.3.4
 	github.com/minio/minio-go/v7 v7.0.23
-	github.com/minio/pkg v1.1.16
+	//github.com/minio/pkg v1.1.16
+	github.com/minio/pkg v1.0.10
 	github.com/minio/selfupdate v0.4.0
 	github.com/minio/sha256-simd v1.0.0
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
