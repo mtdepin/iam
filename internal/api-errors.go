@@ -63,7 +63,6 @@ type APIErrorResponse struct {
 // APIErrorCode type of error status.
 type APIErrorCode int
 
-var errInvalidStorageClass = errors.New("invalid storage class")
 
 //go:generate stringer -type=APIErrorCode -trimprefix=Err $GOFILE
 
@@ -101,30 +100,11 @@ const (
 	ErrMissingContentMD5
 	ErrMissingRequestBodyError
 	ErrMissingSecurityHeader
-	ErrNoSuchBucket
-	ErrNoSuchBucketPolicy
-	ErrNoSuchBucketLifecycle
-	ErrNoSuchLifecycleConfiguration
-	ErrNoSuchBucketSSEConfig
 	ErrNoSuchCORSConfiguration
 	ErrNoSuchWebsiteConfiguration
-	ErrReplicationConfigurationNotFoundError
 	ErrRemoteDestinationNotFoundError
-	ErrReplicationDestinationMissingLock
 	ErrRemoteTargetNotFoundError
-	ErrReplicationRemoteConnectionError
-	ErrReplicationBandwidthLimitError
-	ErrBucketRemoteIdenticalToSource
-	ErrBucketRemoteAlreadyExists
-	ErrBucketRemoteLabelInUse
-	ErrBucketRemoteArnTypeInvalid
-	ErrBucketRemoteArnInvalid
-	ErrBucketRemoteRemoveDisallowed
 	ErrRemoteTargetNotVersionedError
-	ErrReplicationSourceNotVersionedError
-	ErrReplicationNeedsVersioningError
-	ErrReplicationBucketNeedsVersioningError
-	ErrReplicationNoMatchingRuleError
 	ErrNoSuchKey
 	ErrNoSuchUpload
 	ErrInvalidVersionID
@@ -140,7 +120,6 @@ const (
 	ErrMalformedPOSTRequest
 	ErrPOSTFileRequired
 	ErrSignatureVersionNotSupported
-	ErrBucketNotEmpty
 	ErrAllAccessDisabled
 	ErrMalformedPolicy
 	ErrMissingFields
@@ -165,9 +144,7 @@ const (
 	ErrMissingDateHeader
 	ErrInvalidQuerySignatureAlgo
 	ErrInvalidQueryParams
-	ErrBucketAlreadyOwnedByYou
 	ErrInvalidDuration
-	ErrBucketAlreadyExists
 	ErrMetadataTooLarge
 	ErrUnsupportedMetadata
 	ErrMaximumExpires
@@ -177,9 +154,7 @@ const (
 	ErrKeyTooLongError
 	ErrInvalidRetentionDate
 	ErrUnknownWORMModeDirective
-	ErrBucketTaggingNotFound
 	ErrInvalidTagDirective
-	ErrNoSuchLoggingConfiguration
 	ErrNoSuchACLConfiguration
 	// Add new error codes here.
 
@@ -228,13 +203,9 @@ const (
 	ErrClientDisconnected
 	ErrOperationMaxedOut
 	ErrInvalidRequest
-	ErrTransitionStorageClassNotFoundError
-	// MinIO storage class error codes
-	ErrInvalidStorageClass
+
 	ErrBackendDown
-	// Add new extended error codes here.
-	// Please open a https://github.com/minio/minio/issues before adding
-	// new error codes here.
+
 
 	ErrMalformedJSON
 	ErrAdminNoSuchUser
@@ -264,7 +235,7 @@ const (
 
 	// S3 Select Errors
 	ErrEmptyRequestBody
-	ErrUnsupportedFunction
+	ErrUnsupportedFuncion
 	ErrInvalidExpressionType
 	ErrBusy
 	ErrUnauthorizedAccess
@@ -400,11 +371,7 @@ var errorCodes = errorCodeMap{
 		Description:    "Unknown metadata directive.",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
-	ErrInvalidStorageClass: {
-		Code:           "InvalidStorageClass",
-		Description:    "Invalid storage class.",
-		HTTPStatusCode: http.StatusBadRequest,
-	},
+
 	ErrInvalidRequestBody: {
 		Code:           "InvalidArgument",
 		Description:    "Body shouldn't be set for this request.",
@@ -530,31 +497,6 @@ var errorCodes = errorCodeMap{
 		Description:    "Request body is empty.",
 		HTTPStatusCode: http.StatusLengthRequired,
 	},
-	ErrNoSuchBucket: {
-		Code:           "NoSuchBucket",
-		Description:    "The specified bucket does not exist",
-		HTTPStatusCode: http.StatusNotFound,
-	},
-	ErrNoSuchBucketPolicy: {
-		Code:           "NoSuchBucketPolicy",
-		Description:    "The bucket policy does not exist",
-		HTTPStatusCode: http.StatusNotFound,
-	},
-	ErrNoSuchBucketLifecycle: {
-		Code:           "NoSuchBucketLifecycle",
-		Description:    "The bucket lifecycle configuration does not exist",
-		HTTPStatusCode: http.StatusNotFound,
-	},
-	ErrNoSuchLifecycleConfiguration: {
-		Code:           "NoSuchLifecycleConfiguration",
-		Description:    "The lifecycle configuration does not exist",
-		HTTPStatusCode: http.StatusNotFound,
-	},
-	ErrNoSuchBucketSSEConfig: {
-		Code:           "ServerSideEncryptionConfigurationNotFoundError",
-		Description:    "The server side encryption configuration was not found",
-		HTTPStatusCode: http.StatusNotFound,
-	},
 	ErrNoSuchKey: {
 		Code:           "NoSuchKey",
 		Description:    "The specified key does not exist.",
@@ -629,16 +571,6 @@ var errorCodes = errorCodeMap{
 		Code:           "InvalidRequest",
 		Description:    "The authorization mechanism you have provided is not supported. Please use AWS4-HMAC-SHA256.",
 		HTTPStatusCode: http.StatusBadRequest,
-	},
-	ErrBucketNotEmpty: {
-		Code:           "BucketNotEmpty",
-		Description:    "The bucket you tried to delete is not empty",
-		HTTPStatusCode: http.StatusConflict,
-	},
-	ErrBucketAlreadyExists: {
-		Code:           "BucketAlreadyExists",
-		Description:    "The requested bucket name is not available. The bucket namespace is shared by all users of the system. Please select a different name and try again.",
-		HTTPStatusCode: http.StatusConflict,
 	},
 	ErrAllAccessDisabled: {
 		Code:           "AllAccessDisabled",
@@ -775,20 +707,11 @@ var errorCodes = errorCodeMap{
 		Description:    "Query-string authentication version 4 requires the X-Amz-Algorithm, X-Amz-Credential, X-Amz-Signature, X-Amz-Date, X-Amz-SignedHeaders, and X-Amz-Expires parameters.",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
-	ErrBucketAlreadyOwnedByYou: {
-		Code:           "BucketAlreadyOwnedByYou",
-		Description:    "Your previous request to create the named bucket succeeded and you already own it.",
-		HTTPStatusCode: http.StatusConflict,
-	},
+
 	ErrInvalidDuration: {
 		Code:           "InvalidDuration",
 		Description:    "Duration provided in the request is invalid.",
 		HTTPStatusCode: http.StatusBadRequest,
-	},
-	ErrBucketTaggingNotFound: {
-		Code:           "NoSuchTagSet",
-		Description:    "The TagSet does not exist",
-		HTTPStatusCode: http.StatusNotFound,
 	},
 	ErrNoSuchCORSConfiguration: {
 		Code:           "NoSuchCORSConfiguration",
@@ -800,89 +723,19 @@ var errorCodes = errorCodeMap{
 		Description:    "The specified bucket does not have a website configuration",
 		HTTPStatusCode: http.StatusNotFound,
 	},
-	ErrReplicationConfigurationNotFoundError: {
-		Code:           "ReplicationConfigurationNotFoundError",
-		Description:    "The replication configuration was not found",
-		HTTPStatusCode: http.StatusNotFound,
-	},
 	ErrRemoteDestinationNotFoundError: {
 		Code:           "RemoteDestinationNotFoundError",
 		Description:    "The remote destination bucket does not exist",
 		HTTPStatusCode: http.StatusNotFound,
-	},
-	ErrReplicationDestinationMissingLock: {
-		Code:           "ReplicationDestinationMissingLockError",
-		Description:    "The replication destination bucket does not have object locking enabled",
-		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrRemoteTargetNotFoundError: {
 		Code:           "XMinioAdminRemoteTargetNotFoundError",
 		Description:    "The remote target does not exist",
 		HTTPStatusCode: http.StatusNotFound,
 	},
-	ErrReplicationRemoteConnectionError: {
-		Code:           "XMinioAdminReplicationRemoteConnectionError",
-		Description:    "Remote service connection error - please check remote service credentials and target bucket",
-		HTTPStatusCode: http.StatusNotFound,
-	},
-	ErrReplicationBandwidthLimitError: {
-		Code:           "XMinioAdminReplicationBandwidthLimitError",
-		Description:    "Bandwidth limit for remote target must be atleast 100MBps",
-		HTTPStatusCode: http.StatusBadRequest,
-	},
-	ErrReplicationNoMatchingRuleError: {
-		Code:           "XMinioReplicationNoMatchingRule",
-		Description:    "No matching replication rule found for this object prefix",
-		HTTPStatusCode: http.StatusBadRequest,
-	},
-	ErrBucketRemoteIdenticalToSource: {
-		Code:           "XMinioAdminRemoteIdenticalToSource",
-		Description:    "The remote target cannot be identical to source",
-		HTTPStatusCode: http.StatusBadRequest,
-	},
-	ErrBucketRemoteAlreadyExists: {
-		Code:           "XMinioAdminBucketRemoteAlreadyExists",
-		Description:    "The remote target already exists",
-		HTTPStatusCode: http.StatusBadRequest,
-	},
-	ErrBucketRemoteLabelInUse: {
-		Code:           "XMinioAdminBucketRemoteLabelInUse",
-		Description:    "The remote target with this label already exists",
-		HTTPStatusCode: http.StatusBadRequest,
-	},
-	ErrBucketRemoteRemoveDisallowed: {
-		Code:           "XMinioAdminRemoteRemoveDisallowed",
-		Description:    "This ARN is in use by an existing configuration",
-		HTTPStatusCode: http.StatusBadRequest,
-	},
-	ErrBucketRemoteArnTypeInvalid: {
-		Code:           "XMinioAdminRemoteARNTypeInvalid",
-		Description:    "The bucket remote ARN type is not valid",
-		HTTPStatusCode: http.StatusBadRequest,
-	},
-	ErrBucketRemoteArnInvalid: {
-		Code:           "XMinioAdminRemoteArnInvalid",
-		Description:    "The bucket remote ARN does not have correct format",
-		HTTPStatusCode: http.StatusBadRequest,
-	},
 	ErrRemoteTargetNotVersionedError: {
 		Code:           "RemoteTargetNotVersionedError",
 		Description:    "The remote target does not have versioning enabled",
-		HTTPStatusCode: http.StatusBadRequest,
-	},
-	ErrReplicationSourceNotVersionedError: {
-		Code:           "ReplicationSourceNotVersionedError",
-		Description:    "The replication source does not have versioning enabled",
-		HTTPStatusCode: http.StatusBadRequest,
-	},
-	ErrReplicationNeedsVersioningError: {
-		Code:           "InvalidRequest",
-		Description:    "Versioning must be 'Enabled' on the bucket to apply a replication configuration",
-		HTTPStatusCode: http.StatusBadRequest,
-	},
-	ErrReplicationBucketNeedsVersioningError: {
-		Code:           "InvalidRequest",
-		Description:    "Versioning must be 'Enabled' on the bucket to add a replication target",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrInvalidRetentionDate: {
@@ -898,11 +751,6 @@ var errorCodes = errorCodeMap{
 	},
 
 
-	ErrTransitionStorageClassNotFoundError: {
-		Code:           "TransitionStorageClassNotFoundError",
-		Description:    "The transition storage class was not found",
-		HTTPStatusCode: http.StatusNotFound,
-	},
 
 	/// Bucket notification related errors.
 	ErrEventNotification: {
@@ -1243,11 +1091,6 @@ var errorCodes = errorCodeMap{
 	ErrEmptyRequestBody: {
 		Code:           "EmptyRequestBody",
 		Description:    "Request body cannot be empty.",
-		HTTPStatusCode: http.StatusBadRequest,
-	},
-	ErrUnsupportedFunction: {
-		Code:           "UnsupportedFunction",
-		Description:    "Encountered an unsupported SQL function.",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrInvalidDataSource: {
@@ -1690,11 +1533,6 @@ var errorCodes = errorCodeMap{
 		Description:    "Invalid according to Policy: Policy Condition failed",
 		HTTPStatusCode: http.StatusForbidden,
 	},
-	ErrNoSuchLoggingConfiguration: {
-		Code:           "NoSuchLogSet",
-		Description:    "The LogSet does not exist",
-		HTTPStatusCode: http.StatusNotFound,
-	},
 	ErrNoSuchACLConfiguration: {
 		Code:           "NoSuchAclSet",
 		Description:    "The AclSet does not exist",
@@ -1748,8 +1586,6 @@ func toAPIErrorCode(ctx context.Context, err error) (apiErr APIErrorCode) {
 		apiErr = ErrAdminInvalidAccessKey
 	case auth.ErrInvalidSecretKeyLength:
 		apiErr = ErrAdminInvalidSecretKey
-	case errInvalidStorageClass:
-		apiErr = ErrInvalidStorageClass
 	// SSE errors
 	case errInvalidEncryptionParameters:
 		apiErr = ErrInvalidEncryptionParameters
@@ -1842,8 +1678,6 @@ func toAPIErrorCode(ctx context.Context, err error) (apiErr APIErrorCode) {
 	case UnsupportedMetadata:
 		apiErr = ErrUnsupportedMetadata
 
-	case TransitionStorageClassNotFound:
-		apiErr = ErrTransitionStorageClassNotFoundError
 	case InvalidObjectState:
 		apiErr = ErrInvalidObjectState
 	case *event.ErrInvalidEventName:
