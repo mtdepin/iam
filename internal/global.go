@@ -43,8 +43,8 @@ var (
 )
 
 const (
-	maxLocationConstraintSize    = 3 * humanize.MiByte
-	globalWindowsOSName          = "windows"
+	maxLocationConstraintSize = 3 * humanize.MiByte
+	globalWindowsOSName       = "windows"
 	// Refresh interval to update in-memory iam config cache.
 	globalRefreshIAMInterval = 5 * time.Minute
 	globalDirSuffix          = "__XLDIR__"
