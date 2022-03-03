@@ -1,5 +1,3 @@
-
-
 // Package etag provides an implementation of S3 ETags.
 //
 // Each S3 object has an associated ETag that can be

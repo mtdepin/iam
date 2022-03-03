@@ -1,5 +1,3 @@
-
-
 package internal
 
 import (
@@ -127,7 +125,6 @@ const (
 	ErrReplicationNeedsVersioningError
 	ErrReplicationBucketNeedsVersioningError
 	ErrReplicationNoMatchingRuleError
-	ErrObjectRestoreAlreadyInProgress
 	ErrNoSuchKey
 	ErrNoSuchUpload
 	ErrInvalidVersionID
@@ -178,20 +175,12 @@ const (
 	ErrInvalidPrefixMarker
 	ErrBadRequest
 	ErrKeyTooLongError
-	ErrInvalidBucketObjectLockConfiguration
-	ErrObjectLockConfigurationNotFound
-	ErrObjectLockConfigurationNotAllowed
-	ErrNoSuchObjectLockConfiguration
-	ErrObjectLocked
 	ErrInvalidRetentionDate
-	ErrPastObjectLockRetainDate
 	ErrUnknownWORMModeDirective
 	ErrBucketTaggingNotFound
-	ErrObjectLockInvalidHeaders
 	ErrInvalidTagDirective
 	ErrNoSuchLoggingConfiguration
 	ErrNoSuchACLConfiguration
-	ErrObjectTaggingNotFound
 	// Add new error codes here.
 
 	// SSE-S3 related API errors
@@ -200,7 +189,6 @@ const (
 	// Server-Side-Encryption (with Customer provided key) related API errors.
 	ErrInsecureSSECustomerRequest
 	ErrSSEMultipartEncrypted
-	ErrSSEEncryptedObject
 	ErrInvalidEncryptionParameters
 	ErrInvalidSSECustomerAlgorithm
 	ErrInvalidSSECustomerKey
@@ -231,15 +219,9 @@ const (
 
 	// Add new extended error codes here.
 
-	// MinIO extended errors.
-	ErrReadQuorum
-	ErrWriteQuorum
-	ErrParentIsObject
+	// extended errors.
 	ErrStorageFull
 	ErrRequestBodyParse
-	ErrObjectExistsAsDirectory
-	ErrInvalidObjectName
-	ErrInvalidObjectNamePrefixSlash
 	ErrInvalidResourceName
 	ErrServerNotInitialized
 	ErrOperationTimedOut
@@ -268,7 +250,6 @@ const (
 	ErrAdminConfigDuplicateKeys
 	ErrAdminCredentialsMismatch
 	ErrInsecureClientRequest
-	ErrObjectTampered
 	// Bucket Quota error codes
 	ErrAdminBucketQuotaExceeded
 	ErrAdminNoSuchQuotaConfiguration
@@ -629,11 +610,6 @@ var errorCodes = errorCodeMap{
 		Description:    "The list of parts was not in ascending order. The parts list must be specified in order by part number.",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
-	ErrInvalidObjectState: {
-		Code:           "InvalidObjectState",
-		Description:    "The operation is not valid for the current state of the object.",
-		HTTPStatusCode: http.StatusForbidden,
-	},
 	ErrAuthorizationHeaderMalformed: {
 		Code:           "AuthorizationHeaderMalformed",
 		Description:    "The authorization header is malformed; the region is wrong; expecting 'us-east-1'.",
@@ -809,25 +785,10 @@ var errorCodes = errorCodeMap{
 		Description:    "Duration provided in the request is invalid.",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
-	ErrInvalidBucketObjectLockConfiguration: {
-		Code:           "InvalidRequest",
-		Description:    "Bucket is missing ObjectLockConfiguration",
-		HTTPStatusCode: http.StatusBadRequest,
-	},
 	ErrBucketTaggingNotFound: {
 		Code:           "NoSuchTagSet",
 		Description:    "The TagSet does not exist",
 		HTTPStatusCode: http.StatusNotFound,
-	},
-	ErrObjectLockConfigurationNotFound: {
-		Code:           "ObjectLockConfigurationNotFoundError",
-		Description:    "Object Lock configuration does not exist for this bucket",
-		HTTPStatusCode: http.StatusNotFound,
-	},
-	ErrObjectLockConfigurationNotAllowed: {
-		Code:           "InvalidBucketState",
-		Description:    "Object Lock configuration cannot be enabled on existing buckets",
-		HTTPStatusCode: http.StatusConflict,
 	},
 	ErrNoSuchCORSConfiguration: {
 		Code:           "NoSuchCORSConfiguration",
@@ -924,41 +885,19 @@ var errorCodes = errorCodeMap{
 		Description:    "Versioning must be 'Enabled' on the bucket to add a replication target",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
-	ErrNoSuchObjectLockConfiguration: {
-		Code:           "NoSuchObjectLockConfiguration",
-		Description:    "The specified object does not have a ObjectLock configuration",
-		HTTPStatusCode: http.StatusBadRequest,
-	},
-	ErrObjectLocked: {
-		Code:           "InvalidRequest",
-		Description:    "Object is WORM protected and cannot be overwritten",
-		HTTPStatusCode: http.StatusBadRequest,
-	},
 	ErrInvalidRetentionDate: {
 		Code:           "InvalidRequest",
 		Description:    "Date must be provided in ISO 8601 format",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
-	ErrPastObjectLockRetainDate: {
-		Code:           "InvalidRequest",
-		Description:    "the retain until date must be in the future",
-		HTTPStatusCode: http.StatusBadRequest,
-	},
+
 	ErrUnknownWORMModeDirective: {
 		Code:           "InvalidRequest",
 		Description:    "unknown wormMode directive",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
-	ErrObjectLockInvalidHeaders: {
-		Code:           "InvalidRequest",
-		Description:    "x-amz-object-lock-retain-until-date and x-amz-object-lock-mode must both be supplied",
-		HTTPStatusCode: http.StatusBadRequest,
-	},
-	ErrObjectRestoreAlreadyInProgress: {
-		Code:           "RestoreAlreadyInProgress",
-		Description:    "Object restore is already in progress",
-		HTTPStatusCode: http.StatusConflict,
-	},
+
+
 	ErrTransitionStorageClassNotFoundError: {
 		Code:           "TransitionStorageClassNotFoundError",
 		Description:    "The transition storage class was not found",
@@ -1051,11 +990,6 @@ var errorCodes = errorCodeMap{
 		Description:    "The multipart upload initiate requested encryption. Subsequent part requests must include the appropriate encryption parameters.",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
-	ErrSSEEncryptedObject: {
-		Code:           "InvalidRequest",
-		Description:    "The object was stored using a form of Server Side Encryption. The correct parameters must be provided to retrieve the object.",
-		HTTPStatusCode: http.StatusBadRequest,
-	},
 	ErrInvalidEncryptionParameters: {
 		Code:           "InvalidRequest",
 		Description:    "The encryption parameters are not applicable to this object.",
@@ -1125,29 +1059,9 @@ var errorCodes = errorCodeMap{
 		Description:    "Storage backend has reached its minimum free disk threshold. Please delete a few objects to proceed.",
 		HTTPStatusCode: http.StatusInsufficientStorage,
 	},
-	ErrParentIsObject: {
-		Code:           "XMinioParentIsObject",
-		Description:    "Object-prefix is already an object, please choose a different object-prefix name.",
-		HTTPStatusCode: http.StatusBadRequest,
-	},
 	ErrRequestBodyParse: {
 		Code:           "XMinioRequestBodyParse",
 		Description:    "The request body failed to parse.",
-		HTTPStatusCode: http.StatusBadRequest,
-	},
-	ErrObjectExistsAsDirectory: {
-		Code:           "XMinioObjectExistsAsDirectory",
-		Description:    "Object name already exists as a directory.",
-		HTTPStatusCode: http.StatusConflict,
-	},
-	ErrInvalidObjectName: {
-		Code:           "XMinioInvalidObjectName",
-		Description:    "Object name contains unsupported characters.",
-		HTTPStatusCode: http.StatusBadRequest,
-	},
-	ErrInvalidObjectNamePrefixSlash: {
-		Code:           "XMinioInvalidObjectName",
-		Description:    "Object name contains a leading slash.",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrInvalidResourceName: {
@@ -1270,11 +1184,6 @@ var errorCodes = errorCodeMap{
 		Code:           "InvalidArgument",
 		Description:    "Your metadata headers are not supported.",
 		HTTPStatusCode: http.StatusBadRequest,
-	},
-	ErrObjectTampered: {
-		Code:           "XMinioObjectTampered",
-		Description:    errObjectTampered.Error(),
-		HTTPStatusCode: http.StatusPartialContent,
 	},
 	ErrMaximumExpires: {
 		Code:           "AuthorizationQueryParametersError",
@@ -1791,11 +1700,6 @@ var errorCodes = errorCodeMap{
 		Description:    "The AclSet does not exist",
 		HTTPStatusCode: http.StatusNotFound,
 	},
-	ErrObjectTaggingNotFound: {
-		Code:           "NoSuchObjectTagSet",
-		Description:    "The TagSet does not exist",
-		HTTPStatusCode: http.StatusNotFound,
-	},
 	// Add your error structure here.
 }
 
@@ -1859,10 +1763,6 @@ func toAPIErrorCode(ctx context.Context, err error) (apiErr APIErrorCode) {
 		apiErr = ErrMissingSSECustomerKeyMD5
 	case crypto.ErrCustomerKeyMD5Mismatch:
 		apiErr = ErrSSECustomerKeyMD5Mismatch
-	case errObjectTampered:
-		apiErr = ErrObjectTampered
-	case errEncryptedObject:
-		apiErr = ErrSSEEncryptedObject
 	case errInvalidSSEParameters:
 		apiErr = ErrInvalidSSECustomerParameters
 	case crypto.ErrInvalidCustomerKey, crypto.ErrSecretKeyMismatch:
@@ -1875,16 +1775,6 @@ func toAPIErrorCode(ctx context.Context, err error) (apiErr APIErrorCode) {
 		apiErr = ErrOperationTimedOut
 	case errDiskNotFound:
 		apiErr = ErrSlowDown
-		//case objectlock.ErrInvalidRetentionDate:
-		//	apiErr = ErrInvalidRetentionDate
-		//case objectlock.ErrPastObjectLockRetainDate:
-		//	apiErr = ErrPastObjectLockRetainDate
-		//case objectlock.ErrUnknownWORMModeDirective:
-		//	apiErr = ErrUnknownWORMModeDirective
-		//case objectlock.ErrObjectLockInvalidHeaders:
-		//	apiErr = ErrObjectLockInvalidHeaders
-		//case objectlock.ErrMalformedXML:
-		//	apiErr = ErrMalformedXML
 	}
 
 	// Compression errors
@@ -1907,24 +1797,10 @@ func toAPIErrorCode(ctx context.Context, err error) (apiErr APIErrorCode) {
 		apiErr = ErrAllAccessDisabled
 	case IncompleteBody:
 		apiErr = ErrIncompleteBody
-	case ObjectExistsAsDirectory:
-		apiErr = ErrObjectExistsAsDirectory
 	case PrefixAccessDenied:
 		apiErr = ErrAccessDenied
-	case ParentIsObject:
-		apiErr = ErrParentIsObject
 	case BucketNameInvalid:
 		apiErr = ErrInvalidBucketName
-	case BucketNotFound:
-		apiErr = ErrNoSuchBucket
-	case BucketAlreadyOwnedByYou:
-		apiErr = ErrBucketAlreadyOwnedByYou
-	case BucketNotEmpty:
-		apiErr = ErrBucketNotEmpty
-	case BucketAlreadyExists:
-		apiErr = ErrBucketAlreadyExists
-	case BucketExists:
-		apiErr = ErrBucketAlreadyOwnedByYou
 	case ObjectNotFound:
 		apiErr = ErrNoSuchKey
 	case MethodNotAllowed:
@@ -1935,10 +1811,6 @@ func toAPIErrorCode(ctx context.Context, err error) (apiErr APIErrorCode) {
 		apiErr = ErrNoSuchVersion
 	case ObjectAlreadyExists:
 		apiErr = ErrMethodNotAllowed
-	case ObjectNameInvalid:
-		apiErr = ErrInvalidObjectName
-	case ObjectNamePrefixAsSlash:
-		apiErr = ErrInvalidObjectNamePrefixSlash
 	case InvalidUploadID:
 		apiErr = ErrNoSuchUpload
 	case InvalidPart:
@@ -1969,53 +1841,11 @@ func toAPIErrorCode(ctx context.Context, err error) (apiErr APIErrorCode) {
 		apiErr = ErrEntityTooLarge
 	case UnsupportedMetadata:
 		apiErr = ErrUnsupportedMetadata
-	case BucketPolicyNotFound:
-		apiErr = ErrNoSuchBucketPolicy
-	case BucketLifecycleNotFound:
-		apiErr = ErrNoSuchLifecycleConfiguration
-	case BucketSSEConfigNotFound:
-		apiErr = ErrNoSuchBucketSSEConfig
-	case BucketTaggingNotFound:
-		apiErr = ErrBucketTaggingNotFound
-	case BucketObjectLockConfigNotFound:
-		apiErr = ErrObjectLockConfigurationNotFound
-	case BucketQuotaConfigNotFound:
-		apiErr = ErrAdminNoSuchQuotaConfiguration
-	case BucketReplicationConfigNotFound:
-		apiErr = ErrReplicationConfigurationNotFoundError
-	case BucketRemoteDestinationNotFound:
-		apiErr = ErrRemoteDestinationNotFoundError
-	case BucketReplicationDestinationMissingLock:
-		apiErr = ErrReplicationDestinationMissingLock
-	case BucketRemoteTargetNotFound:
-		apiErr = ErrRemoteTargetNotFoundError
-	case BucketRemoteConnectionErr:
-		apiErr = ErrReplicationRemoteConnectionError
-	case BucketRemoteAlreadyExists:
-		apiErr = ErrBucketRemoteAlreadyExists
-	case BucketRemoteLabelInUse:
-		apiErr = ErrBucketRemoteLabelInUse
-	case BucketRemoteArnTypeInvalid:
-		apiErr = ErrBucketRemoteArnTypeInvalid
-	case BucketRemoteArnInvalid:
-		apiErr = ErrBucketRemoteArnInvalid
-	case BucketRemoteRemoveDisallowed:
-		apiErr = ErrBucketRemoteRemoveDisallowed
-	case BucketRemoteTargetNotVersioned:
-		apiErr = ErrRemoteTargetNotVersionedError
-	case BucketReplicationSourceNotVersioned:
-		apiErr = ErrReplicationSourceNotVersionedError
+
 	case TransitionStorageClassNotFound:
 		apiErr = ErrTransitionStorageClassNotFoundError
 	case InvalidObjectState:
 		apiErr = ErrInvalidObjectState
-	case BucketACLNotFound:
-		apiErr = ErrNoSuchACLConfiguration
-	case ObjectTaggingNotFound:
-		apiErr = ErrObjectTaggingNotFound
-
-	case BucketQuotaExceeded:
-		apiErr = ErrAdminBucketQuotaExceeded
 	case *event.ErrInvalidEventName:
 		apiErr = ErrEventNotification
 	case *event.ErrInvalidARN:
@@ -2044,10 +1874,6 @@ func toAPIErrorCode(ctx context.Context, err error) (apiErr APIErrorCode) {
 		apiErr = ErrBackendDown
 	case ObjectNameTooLong:
 		apiErr = ErrKeyTooLongError
-	//case dns.ErrInvalidBucketName:
-	//	apiErr = ErrInvalidBucketName
-	//case dns.ErrBucketConflict:
-	//	apiErr = ErrBucketAlreadyExists
 	default:
 		var ie, iw int
 		// This work-around is to handle the issue golang/go#30648
@@ -2074,125 +1900,6 @@ func toAPIErrorCode(ctx context.Context, err error) (apiErr APIErrorCode) {
 }
 
 var noError = APIError{}
-
-// toAPIError - Converts embedded errors. Convenience
-// function written to handle all cases where we have known types of
-// errors returned by underlying layers.
-//func toAPIError(ctx context.Context, err error) APIError {
-//	if err == nil {
-//		return noError
-//	}
-//
-//	var apiErr = errorCodes.ToAPIErr(toAPIErrorCode(ctx, err))
-//	e, ok := err.(dns.ErrInvalidBucketName)
-//	if ok {
-//		code := toAPIErrorCode(ctx, e)
-//		apiErr = errorCodes.ToAPIErrWithErr(code, e)
-//	}
-//
-//	if apiErr.Code == "NotImplemented" {
-//		switch e := err.(type) {
-//		case NotImplemented:
-//			desc := e.Error()
-//			if desc == "" {
-//				desc = apiErr.Description
-//			}
-//			apiErr = APIError{
-//				Code:           apiErr.Code,
-//				Description:    desc,
-//				HTTPStatusCode: apiErr.HTTPStatusCode,
-//			}
-//			return apiErr
-//		}
-//	}
-//
-//	if apiErr.Code == "InternalError" {
-//		// If we see an internal error try to interpret
-//		// any underlying errors if possible depending on
-//		// their internal error types. This code is only
-//		// useful with gateway implementations.
-//		switch e := err.(type) {
-//		case InvalidArgument:
-//			apiErr = APIError{
-//				Code:           "InvalidArgument",
-//				Description:    e.Error(),
-//				HTTPStatusCode: errorCodes[ErrInvalidRequest].HTTPStatusCode,
-//			}
-//		case *xml.SyntaxError:
-//			apiErr = APIError{
-//				Code: "MalformedXML",
-//				Description: fmt.Sprintf("%s (%s)", errorCodes[ErrMalformedXML].Description,
-//					e.Error()),
-//				HTTPStatusCode: errorCodes[ErrMalformedXML].HTTPStatusCode,
-//			}
-//		case url.EscapeError:
-//			apiErr = APIError{
-//				Code: "XMinioInvalidObjectName",
-//				Description: fmt.Sprintf("%s (%s)", errorCodes[ErrInvalidObjectName].Description,
-//					e.Error()),
-//				HTTPStatusCode: http.StatusBadRequest,
-//			}
-//		case tags.Error:
-//			apiErr = APIError{
-//				Code:           e.Code(),
-//				Description:    e.Error(),
-//				HTTPStatusCode: http.StatusBadRequest,
-//			}
-//		case policy.Error:
-//			apiErr = APIError{
-//				Code:           "MalformedPolicy",
-//				Description:    e.Error(),
-//				HTTPStatusCode: http.StatusBadRequest,
-//			}
-//		case crypto.Error:
-//			apiErr = APIError{
-//				Code:           "XMinIOEncryptionError",
-//				Description:    e.Error(),
-//				HTTPStatusCode: http.StatusBadRequest,
-//			}
-//		case minio.ErrorResponse:
-//			apiErr = APIError{
-//				Code:           e.Code,
-//				Description:    e.Message,
-//				HTTPStatusCode: e.StatusCode,
-//			}
-//			//if globalIsGateway && strings.Contains(e.Message, "KMS is not configured") {
-//			//	apiErr = APIError{
-//			//		Code:           "NotImplemented",
-//			//		Description:    e.Message,
-//			//		HTTPStatusCode: http.StatusNotImplemented,
-//			//	}
-//			//}
-//		case *googleapi.Error:
-//			apiErr = APIError{
-//				Code:           "XGCSInternalError",
-//				Description:    e.Message,
-//				HTTPStatusCode: e.Code,
-//			}
-//			// GCS may send multiple errors, just pick the first one
-//			// since S3 only sends one Error XML response.
-//			if len(e.Errors) >= 1 {
-//				apiErr.Code = e.Errors[0].Reason
-//
-//			}
-//		case azblob.StorageError:
-//			apiErr = APIError{
-//				Code:           string(e.ServiceCode()),
-//				Description:    e.Error(),
-//				HTTPStatusCode: e.Response().StatusCode,
-//			}
-//			// Add more Gateway SDKs here if any in future.
-//		default:
-//			apiErr = APIError{
-//				Code:           apiErr.Code,
-//				Description:    fmt.Sprintf("%s: cause(%v)", apiErr.Description, err),
-//				HTTPStatusCode: apiErr.HTTPStatusCode,
-//			}
-//		}
-//	}
-//
-//	return apiErr
-//}
 
 // getAPIError provides API Error for input API error code.
 func getAPIError(code APIErrorCode) APIError {

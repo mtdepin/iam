@@ -1,5 +1,3 @@
-
-
 // Originally from https://github.com/gorilla/handlers with following license
 // https://raw.githubusercontent.com/gorilla/handlers/master/LICENSE, forked
 // and heavily modified for MinIO's internal needs.
