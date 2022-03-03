@@ -21,12 +21,9 @@ const (
 
 var (
 	errInvalidEncryptionParameters = errors.New("The encryption parameters are not applicable to this object")
-	// AWS errors for invalid SSE-C requests.
-	errEncryptedObject      = errors.New("The object was stored using a form of SSE")
+
 	errInvalidSSEParameters = errors.New("The SSE-C key for key-rotation is not correct") // special access denied
 	errKMSNotConfigured     = errors.New("KMS not configured for a server side encrypted object")
-	// Additional MinIO errors for SSE-C requests.
-	errObjectTampered = errors.New("The requested object was modified and may be compromised")
 )
 
 // AdminError - is a generic error for all admin APIs.
@@ -726,7 +723,7 @@ var errorCodes = errorCodeMap{
 		HTTPStatusCode: http.StatusNotFound,
 	},
 	ErrRemoteTargetNotFoundError: {
-		Code:           "XMinioAdminRemoteTargetNotFoundError",
+		Code:           "XAdminRemoteTargetNotFoundError",
 		Description:    "The remote target does not exist",
 		HTTPStatusCode: http.StatusNotFound,
 	},
@@ -796,7 +793,7 @@ var errorCodes = errorCodeMap{
 	},
 	ErrUnsupportedNotification: {
 		Code:           "UnsupportedNotification",
-		Description:    "MinIO server does not support Topic or Cloud Function based notifications.",
+		Description:    "server does not support Topic or Cloud Function based notifications.",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrInvalidCopyPartRange: {
@@ -897,110 +894,110 @@ var errorCodes = errorCodeMap{
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 
-	/// MinIO extensions.
+	///  extensions.
 	ErrStorageFull: {
-		Code:           "XMinioStorageFull",
+		Code:           "XStorageFull",
 		Description:    "Storage backend has reached its minimum free disk threshold. Please delete a few objects to proceed.",
 		HTTPStatusCode: http.StatusInsufficientStorage,
 	},
 	ErrRequestBodyParse: {
-		Code:           "XMinioRequestBodyParse",
+		Code:           "XRequestBodyParse",
 		Description:    "The request body failed to parse.",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrInvalidResourceName: {
-		Code:           "XMinioInvalidResourceName",
+		Code:           "XInvalidResourceName",
 		Description:    "Resource name contains bad components such as \"..\" or \".\".",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrServerNotInitialized: {
-		Code:           "XMinioServerNotInitialized",
+		Code:           "XServerNotInitialized",
 		Description:    "Server not initialized, please try again.",
 		HTTPStatusCode: http.StatusServiceUnavailable,
 	},
 	ErrMalformedJSON: {
-		Code:           "XMinioMalformedJSON",
+		Code:           "XMalformedJSON",
 		Description:    "The JSON you provided was not well-formed or did not validate against our published format.",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrAdminNoSuchUser: {
-		Code:           "XMinioAdminNoSuchUser",
+		Code:           "XAdminNoSuchUser",
 		Description:    "The specified user does not exist.",
 		HTTPStatusCode: http.StatusNotFound,
 	},
 	ErrAdminNoSuchGroup: {
-		Code:           "XMinioAdminNoSuchGroup",
+		Code:           "XAdminNoSuchGroup",
 		Description:    "The specified group does not exist.",
 		HTTPStatusCode: http.StatusNotFound,
 	},
 	ErrAdminGroupNotEmpty: {
-		Code:           "XMinioAdminGroupNotEmpty",
+		Code:           "XAdminGroupNotEmpty",
 		Description:    "The specified group is not empty - cannot remove it.",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrAdminNoSuchPolicy: {
-		Code:           "XMinioAdminNoSuchPolicy",
+		Code:           "XAdminNoSuchPolicy",
 		Description:    "The canned policy does not exist.",
 		HTTPStatusCode: http.StatusNotFound,
 	},
 	ErrAdminInvalidArgument: {
-		Code:           "XMinioAdminInvalidArgument",
+		Code:           "XAdminInvalidArgument",
 		Description:    "Invalid arguments specified.",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrAdminInvalidAccessKey: {
-		Code:           "XMinioAdminInvalidAccessKey",
+		Code:           "XAdminInvalidAccessKey",
 		Description:    "The access key is invalid.",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrAdminInvalidSecretKey: {
-		Code:           "XMinioAdminInvalidSecretKey",
+		Code:           "XAdminInvalidSecretKey",
 		Description:    "The secret key is invalid.",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrAdminConfigNoQuorum: {
-		Code:           "XMinioAdminConfigNoQuorum",
+		Code:           "XAdminConfigNoQuorum",
 		Description:    "Configuration update failed because server quorum was not met",
 		HTTPStatusCode: http.StatusServiceUnavailable,
 	},
 	ErrAdminConfigTooLarge: {
-		Code: "XMinioAdminConfigTooLarge",
+		Code: "XAdminConfigTooLarge",
 		Description: fmt.Sprintf("Configuration data provided exceeds the allowed maximum of %d bytes",
 			maxEConfigJSONSize),
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrAdminConfigBadJSON: {
-		Code:           "XMinioAdminConfigBadJSON",
+		Code:           "XAdminConfigBadJSON",
 		Description:    "JSON configuration provided is of incorrect format",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrAdminConfigDuplicateKeys: {
-		Code:           "XMinioAdminConfigDuplicateKeys",
+		Code:           "XAdminConfigDuplicateKeys",
 		Description:    "JSON configuration provided has objects with duplicate keys",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrAdminConfigNotificationTargetsFailed: {
-		Code:           "XMinioAdminNotificationTargetsTestFailed",
+		Code:           "XAdminNotificationTargetsTestFailed",
 		Description:    "Configuration update failed due an unsuccessful attempt to connect to one or more notification servers",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrAdminProfilerNotEnabled: {
-		Code:           "XMinioAdminProfilerNotEnabled",
+		Code:           "XAdminProfilerNotEnabled",
 		Description:    "Unable to perform the requested operation because profiling is not enabled",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrAdminCredentialsMismatch: {
-		Code:           "XMinioAdminCredentialsMismatch",
+		Code:           "XAdminCredentialsMismatch",
 		Description:    "Credentials in config mismatch with server environment variables",
 		HTTPStatusCode: http.StatusServiceUnavailable,
 	},
 	ErrAdminNoSuchQuotaConfiguration: {
-		Code:           "XMinioAdminNoSuchQuotaConfiguration",
+		Code:           "XAdminNoSuchQuotaConfiguration",
 		Description:    "The quota configuration does not exist",
 		HTTPStatusCode: http.StatusNotFound,
 	},
 	ErrInsecureClientRequest: {
-		Code:           "XMinioInsecureClientRequest",
+		Code:           "XInsecureClientRequest",
 		Description:    "Cannot respond to plain-text request from TLS-encrypted server",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
@@ -1039,37 +1036,37 @@ var errorCodes = errorCodeMap{
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrHealNotImplemented: {
-		Code:           "XMinioHealNotImplemented",
+		Code:           "XHealNotImplemented",
 		Description:    "This server does not implement heal functionality.",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrHealNoSuchProcess: {
-		Code:           "XMinioHealNoSuchProcess",
+		Code:           "XHealNoSuchProcess",
 		Description:    "No such heal process is running on the server",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrHealInvalidClientToken: {
-		Code:           "XMinioHealInvalidClientToken",
+		Code:           "XHealInvalidClientToken",
 		Description:    "Client token mismatch",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrHealMissingBucket: {
-		Code:           "XMinioHealMissingBucket",
+		Code:           "XHealMissingBucket",
 		Description:    "A heal start request with a non-empty object-prefix parameter requires a bucket to be specified.",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrHealAlreadyRunning: {
-		Code:           "XMinioHealAlreadyRunning",
+		Code:           "XHealAlreadyRunning",
 		Description:    "",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrHealOverlappingPaths: {
-		Code:           "XMinioHealOverlappingPaths",
+		Code:           "XHealOverlappingPaths",
 		Description:    "",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrBackendDown: {
-		Code:           "XMinioBackendDown",
+		Code:           "XBackendDown",
 		Description:    "Object storage backend is unreachable",
 		HTTPStatusCode: http.StatusServiceUnavailable,
 	},
@@ -1495,27 +1492,27 @@ var errorCodes = errorCodeMap{
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrInvalidDecompressedSize: {
-		Code:           "XMinioInvalidDecompressedSize",
+		Code:           "XInvalidDecompressedSize",
 		Description:    "The data provided is unfit for decompression",
 		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrAddUserInvalidArgument: {
-		Code:           "XMinioInvalidIAMCredentials",
+		Code:           "XInvalidIAMCredentials",
 		Description:    "User is not allowed to be same as admin access key",
 		HTTPStatusCode: http.StatusForbidden,
 	},
 	ErrAdminAccountNotEligible: {
-		Code:           "XMinioInvalidIAMCredentials",
+		Code:           "XInvalidIAMCredentials",
 		Description:    "The administrator key is not eligible for this operation",
 		HTTPStatusCode: http.StatusForbidden,
 	},
 	ErrAccountNotEligible: {
-		Code:           "XMinioInvalidIAMCredentials",
+		Code:           "XInvalidIAMCredentials",
 		Description:    "The account key is not eligible for this operation",
 		HTTPStatusCode: http.StatusForbidden,
 	},
 	ErrAdminServiceAccountNotFound: {
-		Code:           "XMinioInvalidIAMCredentials",
+		Code:           "XInvalidIAMCredentials",
 		Description:    "The specified service account is not found",
 		HTTPStatusCode: http.StatusNotFound,
 	},
