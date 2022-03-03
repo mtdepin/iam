@@ -2,7 +2,7 @@ module mt-iam
 
 go 1.16
 
-require github.com/gin-gonic/gin v1.7.7
+//require github.com/gin-gonic/gin v1.7.7
 
 require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
