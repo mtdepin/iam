@@ -56,7 +56,7 @@ func main() {
 			//r.Host = "192.168.1.135:9000"
 			internal.IsAllowed(w, r)
 			return
-		}else if strings.Contains(r.RequestURI, "/validateSignature") {
+		} else if strings.Contains(r.RequestURI, "/validateSignature") {
 			r.RequestURI = strings.Replace(r.RequestURI, "/validateSignature", "", 1)
 			r.URL.Path = strings.Replace(r.URL.Path, "/validateSignature", "", 1)
 
