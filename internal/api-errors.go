@@ -63,7 +63,6 @@ type APIErrorResponse struct {
 // APIErrorCode type of error status.
 type APIErrorCode int
 
-
 //go:generate stringer -type=APIErrorCode -trimprefix=Err $GOFILE
 
 // Error codes, non exhaustive list - http://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html
@@ -206,7 +205,6 @@ const (
 
 	ErrBackendDown
 
-
 	ErrMalformedJSON
 	ErrAdminNoSuchUser
 	ErrAdminNoSuchGroup
@@ -221,8 +219,7 @@ const (
 	ErrAdminConfigDuplicateKeys
 	ErrAdminCredentialsMismatch
 	ErrInsecureClientRequest
-	// Bucket Quota error codes
-	ErrAdminBucketQuotaExceeded
+
 	ErrAdminNoSuchQuotaConfiguration
 
 	ErrHealNotImplemented
@@ -751,7 +748,6 @@ var errorCodes = errorCodeMap{
 	},
 
 
-
 	/// Bucket notification related errors.
 	ErrEventNotification: {
 		Code:           "InvalidArgument",
@@ -997,11 +993,6 @@ var errorCodes = errorCodeMap{
 		Code:           "XMinioAdminCredentialsMismatch",
 		Description:    "Credentials in config mismatch with server environment variables",
 		HTTPStatusCode: http.StatusServiceUnavailable,
-	},
-	ErrAdminBucketQuotaExceeded: {
-		Code:           "XMinioAdminBucketQuotaExceeded",
-		Description:    "Bucket quota exceeded",
-		HTTPStatusCode: http.StatusBadRequest,
 	},
 	ErrAdminNoSuchQuotaConfiguration: {
 		Code:           "XMinioAdminNoSuchQuotaConfiguration",
