@@ -35,8 +35,6 @@ type DeletedObject struct {
 	DeleteMarkerReplicationStatus string `xml:"DeleteMarkerReplicationStatus,omitempty"`
 	// MTime of DeleteMarker on source that needs to be propagated to replica
 	DeleteMarkerMTime DeleteMarkerMTime `xml:"DeleteMarkerMTime,omitempty"`
-	// Status of versioned delete (of object or DeleteMarker)
-	VersionPurgeStatus VersionPurgeStatusType `xml:"VersionPurgeStatus,omitempty"`
 }
 
 // DeleteMarkerMTime is an embedded type containing time.Time for XML marshal
@@ -60,7 +58,7 @@ type ObjectToDelete struct {
 	// Replication status of DeleteMarker
 	DeleteMarkerReplicationStatus string `xml:"DeleteMarkerReplicationStatus"`
 	// Status of versioned delete (of object or DeleteMarker)
-	VersionPurgeStatus VersionPurgeStatusType `xml:"VersionPurgeStatus"`
+	//VersionPurgeStatus VersionPurgeStatusType `xml:"VersionPurgeStatus"`
 	// Version ID of delete marker
 	DeleteMarkerVersionID string `xml:"DeleteMarkerVersionId"`
 }

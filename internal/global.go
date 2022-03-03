@@ -8,7 +8,6 @@ import (
 	"mt-iam/conf/policy/opa"
 	"mt-iam/internal/auth"
 	"mt-iam/internal/pubsub"
-	"sync"
 	"time"
 )
 
@@ -19,6 +18,12 @@ var (
 	globalActiveCred   auth.Credentials
 	GlobalIAMSys       *IAMSys
 	globalLDAPConfig   xldap.Config
+
+	//globalBucketTargetSys    *BucketTargetSys
+	// globalAPIConfig controls S3 API requests throttling,
+	// healthcheck readiness deadlines and cors settings.
+	globalAPIConfig = apiConfig{listQuorum: 30}
+
 	// Authorization validators list.
 	globalOpenIDValidators *openid.Validators
 	globalIsDistErasure    = false
@@ -27,8 +32,6 @@ var (
 	globalDomainNames  []string
 	// Deployment ID - unique per deployment
 	globalDeploymentID string
-	// This flag is set to 'true' when MINIO_UPDATE env is set to 'off'. Default is false.
-	globalInplaceUpdateDisabled = false
 	// CA root certificates, a nil value means system certs pool will be used
 	globalRootCAs *x509.CertPool
 	// The maximum allowed time difference between the incoming request
@@ -37,23 +40,9 @@ var (
 	globalTrace         = pubsub.New()
 	globalLocalNodeName string
 	globalHTTPStats     = newHTTPStats()
-	globalFlushLogging  = make(chan struct{}, 1)
-	GloablLoggingConfig sync.Map
-	globalAPIConfig     = apiConfig{listQuorum: 30}
-	//notify cronjob push file to ipfs
-	GlobalNotifyCronJob = make(chan string, 1000)
-	// Indicates if the running minio server is an erasure-code backend.
-	globalIsErasure = false
-	// Indicates if the running minio is in gateway mode.
-	globalIsGateway = false
 )
 
 const (
-	globalMacOSName              = "darwin"
-	globalMinioModeFS            = "mode-server-fs"
-	globalMinioModeErasure       = "mode-server-xl"
-	globalMinioModeDistErasure   = "mode-server-distributed-xl"
-	globalMinioModeGatewayPrefix = "mode-gateway-"
 	maxLocationConstraintSize    = 3 * humanize.MiByte
 	globalWindowsOSName          = "windows"
 	// Refresh interval to update in-memory iam config cache.

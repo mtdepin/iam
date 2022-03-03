@@ -168,25 +168,18 @@ const (
 	AdminUpdateApplyFailure      = "XMinioAdminUpdateApplyFailure"
 )
 
-func validateAdminUsersReq(ctx context.Context, w http.ResponseWriter, r *http.Request, action iampolicy.AdminAction) (ObjectLayer, auth.Credentials) {
+func validateAdminUsersReq(ctx context.Context, w http.ResponseWriter, r *http.Request, action iampolicy.AdminAction) auth.Credentials {
 	var cred auth.Credentials
 	var adminAPIErr APIErrorCode
-
-	// Get current object layer instance.
-	objectAPI := newObjectLayerFn()
-	if objectAPI == nil {
-		writeErrorResponseJSON(ctx, w, errorCodes.ToAPIErr(ErrServerNotInitialized), r.URL)
-		return nil, cred
-	}
 
 	// Validate request signature.
 	cred, adminAPIErr = checkAdminRequestAuth(ctx, r, action, "")
 	if adminAPIErr != ErrNone {
 		writeErrorResponseJSON(ctx, w, errorCodes.ToAPIErr(adminAPIErr), r.URL)
-		return nil, cred
+		return cred
 	}
 
-	return objectAPI, cred
+	return cred
 }
 
 // RemoveUser - DELETE /minio/admin/v3/remove-user?accessKey=<access_key>
@@ -195,10 +188,7 @@ func (a adminAPIHandlers) RemoveUser(w http.ResponseWriter, r *http.Request) {
 
 	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
 
-	objectAPI, _ := validateAdminUsersReq(ctx, w, r, iampolicy.DeleteUserAdminAction)
-	if objectAPI == nil {
-		return
-	}
+	_ = validateAdminUsersReq(ctx, w, r, iampolicy.DeleteUserAdminAction)
 
 	vars := mux.Vars(r)
 	accessKey := vars["accessKey"]
@@ -228,10 +218,7 @@ func (a adminAPIHandlers) ListBucketUsers(w http.ResponseWriter, r *http.Request
 
 	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
 
-	objectAPI, cred := validateAdminUsersReq(ctx, w, r, iampolicy.ListUsersAdminAction)
-	if objectAPI == nil {
-		return
-	}
+	cred := validateAdminUsersReq(ctx, w, r, iampolicy.ListUsersAdminAction)
 
 	bucket := mux.Vars(r)["bucket"]
 
@@ -264,10 +251,7 @@ func (a adminAPIHandlers) ListUsers(w http.ResponseWriter, r *http.Request) {
 
 	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
 
-	objectAPI, cred := validateAdminUsersReq(ctx, w, r, iampolicy.ListUsersAdminAction)
-	if objectAPI == nil {
-		return
-	}
+	cred := validateAdminUsersReq(ctx, w, r, iampolicy.ListUsersAdminAction)
 
 	password := cred.SecretKey
 
@@ -364,10 +348,7 @@ func (a adminAPIHandlers) UpdateGroupMembers(w http.ResponseWriter, r *http.Requ
 
 	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
 
-	objectAPI, cred := validateAdminUsersReq(ctx, w, r, iampolicy.AddUserToGroupAdminAction)
-	if objectAPI == nil {
-		return
-	}
+	cred := validateAdminUsersReq(ctx, w, r, iampolicy.AddUserToGroupAdminAction)
 
 	defer r.Body.Close()
 	data, err := ioutil.ReadAll(r.Body)
@@ -402,10 +383,7 @@ func (a adminAPIHandlers) GetGroup(w http.ResponseWriter, r *http.Request) {
 
 	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
 
-	objectAPI, _ := validateAdminUsersReq(ctx, w, r, iampolicy.GetGroupAdminAction)
-	if objectAPI == nil {
-		return
-	}
+	_ = validateAdminUsersReq(ctx, w, r, iampolicy.GetGroupAdminAction)
 
 	vars := mux.Vars(r)
 	group := vars["group"]
@@ -431,10 +409,7 @@ func (a adminAPIHandlers) ListGroups(w http.ResponseWriter, r *http.Request) {
 
 	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
 
-	objectAPI, cred := validateAdminUsersReq(ctx, w, r, iampolicy.ListGroupsAdminAction)
-	if objectAPI == nil {
-		return
-	}
+	cred := validateAdminUsersReq(ctx, w, r, iampolicy.ListGroupsAdminAction)
 
 	groups, err := GlobalIAMSys.ListGroups(cred.ParentUser)
 	if err != nil {
@@ -457,10 +432,7 @@ func (a adminAPIHandlers) SetGroupStatus(w http.ResponseWriter, r *http.Request)
 
 	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
 
-	objectAPI, cred := validateAdminUsersReq(ctx, w, r, iampolicy.EnableGroupAdminAction)
-	if objectAPI == nil {
-		return
-	}
+	cred := validateAdminUsersReq(ctx, w, r, iampolicy.EnableGroupAdminAction)
 
 	vars := mux.Vars(r)
 	group := vars["group"]
@@ -486,10 +458,7 @@ func (a adminAPIHandlers) SetUserStatus(w http.ResponseWriter, r *http.Request) 
 
 	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
 
-	objectAPI, cred := validateAdminUsersReq(ctx, w, r, iampolicy.EnableUserAdminAction)
-	if objectAPI == nil {
-		return
-	}
+	cred := validateAdminUsersReq(ctx, w, r, iampolicy.EnableUserAdminAction)
 
 	vars := mux.Vars(r)
 	accessKey := vars["accessKey"]
@@ -1053,10 +1022,7 @@ func (a adminAPIHandlers) InfoCannedPolicy(w http.ResponseWriter, r *http.Reques
 
 	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
 
-	objectAPI, _ := validateAdminUsersReq(ctx, w, r, iampolicy.GetPolicyAdminAction)
-	if objectAPI == nil {
-		return
-	}
+	_ = validateAdminUsersReq(ctx, w, r, iampolicy.GetPolicyAdminAction)
 
 	policy, err := GlobalIAMSys.InfoPolicy(mux.Vars(r)["name"])
 	if err != nil {
@@ -1078,10 +1044,7 @@ func (a adminAPIHandlers) ListBucketPolicies(w http.ResponseWriter, r *http.Requ
 
 	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
 
-	objectAPI, cred := validateAdminUsersReq(ctx, w, r, iampolicy.ListUserPoliciesAdminAction)
-	if objectAPI == nil {
-		return
-	}
+	cred := validateAdminUsersReq(ctx, w, r, iampolicy.ListUserPoliciesAdminAction)
 
 	bucket := mux.Vars(r)["bucket"]
 	policies, err := GlobalIAMSys.ListPolicies(cred.ParentUser, bucket)
@@ -1114,10 +1077,7 @@ func (a adminAPIHandlers) ListCannedPolicies(w http.ResponseWriter, r *http.Requ
 
 	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
 
-	objectAPI, cred := validateAdminUsersReq(ctx, w, r, iampolicy.ListUserPoliciesAdminAction)
-	if objectAPI == nil {
-		return
-	}
+	cred := validateAdminUsersReq(ctx, w, r, iampolicy.ListUserPoliciesAdminAction)
 
 	policies, err := GlobalIAMSys.ListPolicies(cred.ParentUser, "")
 	if err != nil {
@@ -1148,10 +1108,7 @@ func (a adminAPIHandlers) RemoveCannedPolicy(w http.ResponseWriter, r *http.Requ
 
 	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
 
-	objectAPI, _ := validateAdminUsersReq(ctx, w, r, iampolicy.DeletePolicyAdminAction)
-	if objectAPI == nil {
-		return
-	}
+	_ = validateAdminUsersReq(ctx, w, r, iampolicy.DeletePolicyAdminAction)
 
 	vars := mux.Vars(r)
 	policyName := vars["name"]
@@ -1310,10 +1267,7 @@ func (a adminAPIHandlers) AddCannedPolicy(w http.ResponseWriter, r *http.Request
 
 	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
 
-	objectAPI, cred := validateAdminUsersReq(ctx, w, r, iampolicy.CreatePolicyAdminAction)
-	if objectAPI == nil {
-		return
-	}
+	cred := validateAdminUsersReq(ctx, w, r, iampolicy.CreatePolicyAdminAction)
 
 	vars := mux.Vars(r)
 	policyName := vars["name"]
@@ -1354,10 +1308,7 @@ func (a adminAPIHandlers) SetPolicyForUserOrGroup(w http.ResponseWriter, r *http
 
 	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
 
-	objectAPI, _ := validateAdminUsersReq(ctx, w, r, iampolicy.AttachPolicyAdminAction)
-	if objectAPI == nil {
-		return
-	}
+	_ = validateAdminUsersReq(ctx, w, r, iampolicy.AttachPolicyAdminAction)
 
 	vars := mux.Vars(r)
 	policyName := vars["policyName"]
