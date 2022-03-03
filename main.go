@@ -44,6 +44,24 @@ func main() {
 				w.(http.Flusher).Flush()
 				return
 			}
+			w.Header().Set(xhttp.ContentType, "content-type/json")
+			w.WriteHeader(200)
+			_, _ = w.Write([]byte(""))
+			w.(http.Flusher).Flush()
+			return
+		} else if strings.Contains(r.RequestURI, "/auth") {
+			r.RequestURI = strings.Replace(r.RequestURI, "/auth", "", 1)
+			r.URL.Path = strings.Replace(r.URL.Path, "/auth", "", 1)
+
+			//r.Host = "192.168.1.135:9000"
+			internal.IsAllowed(w, r)
+			return
+		}else if strings.Contains(r.RequestURI, "/validateSignature") {
+			r.RequestURI = strings.Replace(r.RequestURI, "/validateSignature", "", 1)
+			r.URL.Path = strings.Replace(r.URL.Path, "/validateSignature", "", 1)
+
+			internal.IsAllowed(w, r)
+			return
 		}
 		// Handle request using passed handler.
 		//正常请求

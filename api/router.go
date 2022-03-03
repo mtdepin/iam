@@ -12,3 +12,9 @@ func InitRouter() *gin.Engine {
 	r.Run(":10000")
 	return r
 }
+
+type RpcResult struct {
+	Data    interface{} `json:"data"`    //data
+	Message string      `json:"message"` //message
+	Success bool        `json:"success"` //data
+}

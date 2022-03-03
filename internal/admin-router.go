@@ -118,12 +118,12 @@ func RegisterAdminRouter(router *mux.Router) {
 		//}
 
 		// -- IAM APIs --
-		adminRouter.Methods(http.MethodPost).Path(adminVersion + "/is-allowed").HandlerFunc(adminAPI.IsAllowed)
+		//adminRouter.Methods(http.MethodPost).Path(adminVersion + "/is-allowed").HandlerFunc(adminAPI.IsAllowed)
 		// Add policy IAM
 		adminRouter.Methods(http.MethodPut).Path(adminVersion+"/add-canned-policy").HandlerFunc(gz(httpTraceAll(adminAPI.AddCannedPolicy))).Queries("name", "{name:.*}")
 
 		//// Add user IAM
-		//adminRouter.Methods(http.MethodGet).Path(adminVersion + "/accountinfo").HandlerFunc(gz(httpTraceAll(adminAPI.AccountInfoHandler)))
+		adminRouter.Methods(http.MethodGet).Path(adminVersion + "/accountinfo").HandlerFunc(gz(httpTraceAll(adminAPI.AccountInfoHandler)))
 
 		adminRouter.Methods(http.MethodPut).Path(adminVersion+"/add-user").HandlerFunc(gz(httpTraceHdrs(adminAPI.AddUser))).Queries("accessKey", "{accessKey:.*}")
 

@@ -26,6 +26,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/minio/kes"
 	"github.com/minio/madmin-go"
+	"github.com/minio/pkg/bucket/policy"
 	iampolicy "github.com/minio/pkg/iam/policy"
 	"io"
 	"io/ioutil"
@@ -92,188 +93,71 @@ func toAdminAPIErr(ctx context.Context, err error) APIError {
 	return apiErr
 }
 
-//// AccountInfoHandler returns usage
-//func (a adminAPIHandlers) AccountInfoHandler(w http.ResponseWriter, r *http.Request) {
-//	ctx := newContext(r, w, "AccountInfo")
-//
-//	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
-//
-//	// Get current object layer instance.
-//	objectAPI := newObjectLayerFn()
-//	if objectAPI == nil {
-//		writeErrorResponseJSON(ctx, w, errorCodes.ToAPIErr(ErrServerNotInitialized), r.URL)
-//		return
-//	}
-//
-//	cred, claims, owner, s3Err := validateAdminSignature(ctx, r, "")
-//	if s3Err != ErrNone {
-//		writeErrorResponseJSON(ctx, w, errorCodes.ToAPIErr(s3Err), r.URL)
-//		return
-//	}
-//
-//	// Set prefix value for "s3:prefix" policy conditionals.
-//	r.Header.Set("prefix", "")
-//
-//	// Set delimiter value for "s3:delimiter" policy conditionals.
-//	r.Header.Set("delimiter", SlashSeparator)
-//
-//	// Check if we are asked to return prefix usage
-//	//enablePrefixUsage := r.URL.Query().Get("prefix-usage") == "true"
-//
-//	isAllowedAccess := func(bucketName string) (rd, wr bool) {
-//		//// iam策略验证读权限
-//		//iamrd :=  globalIAMSys.IsAllowed(iampolicy.Args{
-//		//	AccountName:     cred.AccessKey,
-//		//	Groups:          cred.Groups,
-//		//	Action:          iampolicy.ListBucketAction,
-//		//	BucketName:      bucketName,
-//		//	ConditionValues: getConditionValues(r, "", cred.AccessKey, claims),
-//		//	IsOwner:         owner,
-//		//	ObjectName:      "",
-//		//	Claims:          claims,
-//		//})
-//		//// 桶策略验证读权限
-//		//bucketrd := globalPolicySys.IsAllowed(policy.Args{
-//		//	AccountName:     cred.AccessKey,
-//		//	Groups:          cred.Groups,
-//		//	Action:          policy.ListBucketAction,
-//		//	BucketName:      bucketName,
-//		//	ConditionValues: getConditionValues(r, "", cred.AccessKey, claims),
-//		//	IsOwner:         owner,
-//		//	ObjectName:      "",
-//		//})
-//		//// 读权限
-//		//rd = iamrd || bucketrd
-//		//// iam策略验证写权限
-//		//iamwr := globalIAMSys.IsAllowed(iampolicy.Args{
-//		//	AccountName:     cred.AccessKey,
-//		//	Groups:          cred.Groups,
-//		//	Action:          iampolicy.PutObjectAction,
-//		//	BucketName:      bucketName,
-//		//	ConditionValues: getConditionValues(r, "", cred.AccessKey, claims),
-//		//	IsOwner:         owner,
-//		//	ObjectName:      "",
-//		//	Claims:          claims,
-//		//})
-//		//// 桶策略验证写权限
-//		//bucketwr := globalPolicySys.IsAllowed(policy.Args{
-//		//	AccountName:     cred.AccessKey,
-//		//	Groups:          cred.Groups,
-//		//	Action:          policy.PutObjectAction,
-//		//	BucketName:      bucketName,
-//		//	ConditionValues: getConditionValues(r, "", cred.AccessKey, claims),
-//		//	IsOwner:         owner,
-//		//	ObjectName:      "",
-//		//})
-//		//// 写权限
-//		//wr = iamwr || bucketwr
-//		if GlobalIAMSys.IsAllowed(iampolicy.Args{
-//			AccountName:     cred.AccessKey,
-//			Groups:          cred.Groups,
-//			Action:          iampolicy.ListBucketAction,
-//			BucketName:      bucketName,
-//			ConditionValues: getConditionValues(r, "", cred.AccessKey, claims),
-//			IsOwner:         owner,
-//			ObjectName:      "",
-//			Claims:          claims,
-//		}) {
-//			rd = true
-//		}
-//
-//		if GlobalIAMSys.IsAllowed(iampolicy.Args{
-//			AccountName:     cred.AccessKey,
-//			Groups:          cred.Groups,
-//			Action:          iampolicy.PutObjectAction,
-//			BucketName:      bucketName,
-//			ConditionValues: getConditionValues(r, "", cred.AccessKey, claims),
-//			IsOwner:         owner,
-//			ObjectName:      "",
-//			Claims:          claims,
-//		}) {
-//			wr = true
-//		}
-//		return rd, wr
-//	}
-//
-//	var dataUsageInfo madmin.DataUsageInfo
-//	var err error
-//
-//
-//
-//
-//	accountName := cred.AccessKey
-//	var policies []string
-//	switch GlobalIAMSys.usersSysType {
-//	case MinIOUsersSysType:
-//		policies, err = GlobalIAMSys.PolicyDBGet(accountName, false)
-//	case LDAPUsersSysType:
-//		parentUser := accountName
-//		if cred.ParentUser != "" {
-//			parentUser = cred.ParentUser
-//		}
-//		policies, err = GlobalIAMSys.PolicyDBGet(parentUser, false, cred.Groups...)
-//	default:
-//		err = errors.New("should never happen")
-//	}
-//	if err != nil {
-//		logger.LogIf(ctx, err)
-//		writeErrorResponseJSON(ctx, w, toAdminAPIErr(ctx, err), r.URL)
-//		return
-//	}
-//
-//	buf, err := json.MarshalIndent(GlobalIAMSys.GetCombinedPolicy(policies...), "", " ")
-//	if err != nil {
-//		writeErrorResponseJSON(ctx, w, toAdminAPIErr(ctx, err), r.URL)
-//		return
-//	}
-//
-//	acctInfo := madmin.AccountInfo{
-//		AccountName: accountName,
-//		Server:      objectAPI.BackendInfo(),
-//		Policy:      buf,
-//	}
-//
-//	for _, bucket := range buckets {
-//		rd, wr := isAllowedAccess(bucket.Name)
-//		if rd || wr {
-//			// Fetch the data usage of the current bucket
-//			/*
-//				var size uint64
-//				if !dataUsageInfo.LastUpdate.IsZero() {
-//					size = dataUsageInfo.BucketsUsage[bucket.Name].Size
-//				}
-//			*/
-//			var size = dataUsageInfo.BucketSizes[bucket.Name]
-//			// Fetch the prefix usage of the current bucket
-//			//var prefixUsage map[string]uint64
-//			//if enablePrefixUsage {
-//			//	if pu, err := loadPrefixUsageFromBackend(ctx, objectAPI, bucket.Name); err == nil {
-//			//		prefixUsage = pu
-//			//	} else {
-//			//		logger.LogIf(ctx, err)
-//			//	}
-//			//}
-//			acctInfo.Buckets = append(acctInfo.Buckets, madmin.BucketAccessInfo{
-//				Name:        bucket.Name,
-//				Created:     bucket.Created,
-//				Size:        size,
-//				PrefixUsage: map[string]uint64{},
-//				Access: madmin.AccountAccess{
-//					Read:  rd,
-//					Write: wr,
-//				},
-//			})
-//		}
-//	}
-//
-//	usageInfoJSON, err := json.Marshal(acctInfo)
-//	if err != nil {
-//		writeErrorResponseJSON(ctx, w, toAdminAPIErr(ctx, err), r.URL)
-//		return
-//	}
-//
-//	writeSuccessResponseJSON(w, usageInfoJSON)
-//}
+// AccountInfoHandler returns usage
+func (a adminAPIHandlers) AccountInfoHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := newContext(r, w, "AccountInfo")
+
+	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
+
+	cred, _, _, s3Err := validateAdminSignature(ctx, r, "")
+	if s3Err != ErrNone {
+		writeErrorResponseJSON(ctx, w, errorCodes.ToAPIErr(s3Err), r.URL)
+		return
+	}
+
+	// Set prefix value for "s3:prefix" policy conditionals.
+	r.Header.Set("prefix", "")
+
+	// Set delimiter value for "s3:delimiter" policy conditionals.
+	r.Header.Set("delimiter", SlashSeparator)
+
+	// Check if we are asked to return prefix usage
+	//enablePrefixUsage := r.URL.Query().Get("prefix-usage") == "true"
+
+	var err error
+
+	accountName := cred.AccessKey
+	var policies []string
+	switch GlobalIAMSys.usersSysType {
+	case MinIOUsersSysType:
+		policies, err = GlobalIAMSys.PolicyDBGet(accountName, false)
+	case LDAPUsersSysType:
+		parentUser := accountName
+		if cred.ParentUser != "" {
+			parentUser = cred.ParentUser
+		}
+		policies, err = GlobalIAMSys.PolicyDBGet(parentUser, false, cred.Groups...)
+	default:
+		err = errors.New("should never happen")
+	}
+	if err != nil {
+		logger.LogIf(ctx, err)
+		writeErrorResponseJSON(ctx, w, toAdminAPIErr(ctx, err), r.URL)
+		return
+	}
+
+	buf, err := json.MarshalIndent(GlobalIAMSys.GetCombinedPolicy(policies...), "", " ")
+	if err != nil {
+		writeErrorResponseJSON(ctx, w, toAdminAPIErr(ctx, err), r.URL)
+		return
+	}
+
+	acctInfo := madmin.AccountInfo{
+		AccountName: accountName,
+		//Server:      objectAPI.BackendInfo(),
+		Server: madmin.BackendInfo{},
+		Policy: buf,
+	}
+
+	usageInfoJSON, err := json.Marshal(acctInfo)
+	if err != nil {
+		writeErrorResponseJSON(ctx, w, toAdminAPIErr(ctx, err), r.URL)
+		return
+	}
+
+	writeSuccessResponseJSON(w, usageInfoJSON)
+}
+
 // As per AWS S3 specification, 20KiB policy JSON data is allowed.
 const maxBucketPolicySize = 20 * humanize.KiByte
 
@@ -1277,8 +1161,19 @@ func (a adminAPIHandlers) RemoveCannedPolicy(w http.ResponseWriter, r *http.Requ
 		return
 	}
 }
-func (a adminAPIHandlers) IsAllowed(w http.ResponseWriter, r *http.Request) {
+
+type AuthResult struct {
+	Cred    auth.Credentials
+	Owner   bool
+	Allowed bool
+	Claims  map[string]interface{}
+}
+
+func IsAllowed(w http.ResponseWriter, r *http.Request) {
 	ctx := newContext(r, w, "IsAllowed")
+	var cred auth.Credentials
+	var owner bool
+	var s3Err APIErrorCode
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -1286,17 +1181,128 @@ func (a adminAPIHandlers) IsAllowed(w http.ResponseWriter, r *http.Request) {
 	}
 	var args iampolicy.Args
 	json.Unmarshal(body, &args)
-	allowed := GlobalIAMSys.IsAllowed(args)
-	s := make(map[string]interface{})
-	s["Allowed"] = allowed
-	//s["allowed"] = "false"
-	//if allowed {
-	//	s["allowed"] = "true"
-	//}
-	result, _ := json.Marshal(s)
+
+	switch getRequestAuthType(r) {
+	case authTypeUnknown, authTypeStreamingSigned:
+		writeErrorResponse(ctx, w, errorCodes.ToAPIErr(ErrSignatureVersionNotSupported), r.URL)
+		return
+	case authTypePresignedV2, authTypeSignedV2:
+		if s3Err = isReqAuthenticatedV2(r); s3Err != ErrNone {
+			writeErrorResponse(ctx, w, errorCodes.ToAPIErr(s3Err), r.URL)
+		}
+		cred, owner, s3Err = getReqAccessKeyV2(r)
+	case authTypeSigned, authTypePresigned:
+		region := globalServerRegion
+		switch args.Action {
+		case policy.GetBucketLocationAction, policy.ListAllMyBucketsAction:
+			region = ""
+		}
+		if s3Err = isReqAuthenticated(ctx, r, region, serviceS3); s3Err != ErrNone {
+			return
+		}
+		cred, owner, s3Err = getReqAccessKeyV4(r, region, serviceS3)
+	}
+	if s3Err != ErrNone {
+		writeErrorResponse(ctx, w, errorCodes.ToAPIErr(s3Err), r.URL)
+	}
+
+	var claims map[string]interface{}
+	claims, s3Err = checkClaimsFromToken(r, cred)
+	if s3Err != ErrNone {
+		writeErrorResponse(ctx, w, errorCodes.ToAPIErr(s3Err), r.URL)
+	}
+
+	// 验证IAM策略
+	allowed := GlobalIAMSys.IsAllowed(iampolicy.Args{
+		AccountName:     cred.AccessKey,
+		Groups:          cred.Groups,
+		Action:          args.Action,
+		BucketName:      args.BucketName,
+		ConditionValues: getConditionValues(r, "", cred.AccessKey, claims),
+		ObjectName:      args.ObjectName,
+		IsOwner:         owner,
+		Claims:          claims,
+	})
+
+	ar := AuthResult{
+		Cred:    cred,
+		Owner:   owner,
+		Allowed: allowed,
+		Claims:  claims,
+	}
+
+	result, _ := json.Marshal(ar)
 	writeSuccessResponseJSON(w, result)
 
 }
+
+//func (a adminAPIHandlers) IsAllowed(w http.ResponseWriter, r *http.Request) {
+//	ctx := newContext(r, w, "IsAllowed")
+//	var cred auth.Credentials
+//	var cred auth.Credentials
+//	var owner bool
+//	var s3Err APIErrorCode
+//
+//	body, err := ioutil.ReadAll(r.Body)
+//	if err != nil {
+//		writeErrorResponse(ctx, w, errorCodes.ToAPIErr(ErrMissingContentLength), r.URL)
+//	}
+//	var args iampolicy.Args
+//	json.Unmarshal(body, &args)
+//
+//	switch getRequestAuthType(r) {
+//	case authTypeUnknown, authTypeStreamingSigned:
+//		//return cred, owner, ErrSignatureVersionNotSupported
+//		return
+//	case authTypePresignedV2, authTypeSignedV2:
+//		if s3Err = isReqAuthenticatedV2(r); s3Err != ErrNone {
+//			return
+//		}
+//		cred, owner, s3Err = getReqAccessKeyV2(r)
+//	case authTypeSigned, authTypePresigned:
+//		region := globalServerRegion
+//		switch args.Action {
+//		case policy.GetBucketLocationAction, policy.ListAllMyBucketsAction:
+//			region = ""
+//		}
+//		if s3Err = isReqAuthenticated(ctx, r, region, serviceS3); s3Err != ErrNone {
+//			return
+//		}
+//		cred, owner, s3Err = getReqAccessKeyV4(r, region, serviceS3)
+//	}
+//	if s3Err != ErrNone {
+//		return
+//	}
+//
+//	var claims map[string]interface{}
+//	claims, s3Err = checkClaimsFromToken(r, cred)
+//	if s3Err != ErrNone {
+//		return
+//	}
+//
+//	// 验证IAM策略
+//	allowed := GlobalIAMSys.IsAllowed(iampolicy.Args{
+//		AccountName:     cred.AccessKey,
+//		Groups:          cred.Groups,
+//		Action:          args.Action,
+//		BucketName:      args.BucketName,
+//		ConditionValues: getConditionValues(r, "", cred.AccessKey, claims),
+//		ObjectName:      args.ObjectName,
+//		IsOwner:         owner,
+//		Claims:          claims,
+//	})
+//
+//	//allowed := GlobalIAMSys.IsAllowed(args)
+//	s := make(map[string]interface{})
+//	s["Allowed"] = allowed
+//	//s["allowed"] = "false"
+//	//if allowed {
+//	//	s["allowed"] = "true"
+//	//}
+//	result, _ := json.Marshal(s)
+//	writeSuccessResponseJSON(w, result)
+//
+//}
 
 // AddCannedPolicy - PUT /minio/admin/v3/add-canned-policy?name=<policy_name>
 func (a adminAPIHandlers) AddCannedPolicy(w http.ResponseWriter, r *http.Request) {

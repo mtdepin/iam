@@ -1,5 +1,5 @@
 db:
   db_name: mt_iam
-  db_url: 'tcp(192.168.1.194:3306)'
+  db_url: 'tcp(192.168.1.191:3306)'
   db_user: root
   db_password: 123456

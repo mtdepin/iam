@@ -20,7 +20,6 @@ package internal
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"go.opencensus.io/exporter/stackdriver/propagation"
 	"go.opencensus.io/trace"
 	"io"
@@ -378,7 +377,6 @@ func extractPostPolicyFormValues(ctx context.Context, form *multipart.Form) (fil
 func httpTraceAll(f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if globalTrace.NumSubscribers() == 0 {
-			fmt.Println("no subscriber exist")
 			f.ServeHTTP(w, r)
 			return
 		}
