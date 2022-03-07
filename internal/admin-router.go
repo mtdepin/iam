@@ -20,7 +20,7 @@ const (
 // adminAPIHandlers provides HTTP handlers for MinIO admin API.
 type adminAPIHandlers struct{}
 
-// registerAdminRouter - Add handler functions for each service REST API routes.
+// RegisterAdminRouter - Add handler functions for each service REST API routes.
 func RegisterAdminRouter(router *mux.Router) {
 
 	adminAPI := adminAPIHandlers{}

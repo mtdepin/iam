@@ -14,16 +14,18 @@ import (
 
 func main() {
 	fmt.Println("server start")
-	config.InitConfig()
+	err := config.InitConfig()
+	if err != nil {
+		panic(err)
+		return
+	}
 	datastore.InitDB()
 	internal.Start()
-	// Initialize router. `SkipClean(true)` stops gorilla/mux from
-	// normalizing URL path minio/minio#3256
-	// avoid URL path encoding minio/minio#8950
+
 	router := mux.NewRouter().SkipClean(true).UseEncodedPath()
 	addr := ":10001"
 
-	// Enable STS router if etcd is enabled.
+	// register router
 	internal.RegisterAdminRouter(router)
 	internal.RegisterSTSRouter(router)
 

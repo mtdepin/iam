@@ -1,5 +1,3 @@
-
-
 package internal
 
 import (
