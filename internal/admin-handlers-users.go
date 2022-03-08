@@ -270,13 +270,6 @@ func (a adminAPIHandlers) GetUserInfo(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	name := vars["accessKey"]
 
-	// Get current object layer instance.
-	objectAPI := newObjectLayerFn()
-	if objectAPI == nil {
-		writeErrorResponseJSON(ctx, w, errorCodes.ToAPIErr(ErrServerNotInitialized), r.URL)
-		return
-	}
-
 	cred, claims, owner, s3Err := validateAdminSignature(ctx, r, "")
 	if s3Err != ErrNone {
 		writeErrorResponseJSON(ctx, w, errorCodes.ToAPIErr(s3Err), r.URL)
@@ -468,13 +461,6 @@ func (a adminAPIHandlers) AddUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	accessKey := vars["accessKey"]
 
-	// Get current object layer instance.
-	objectAPI := newObjectLayerFn()
-	if objectAPI == nil {
-		writeErrorResponseJSON(ctx, w, errorCodes.ToAPIErr(ErrServerNotInitialized), r.URL)
-		return
-	}
-
 	cred, claims, owner, s3Err := validateAdminSignature(ctx, r, "")
 	if s3Err != ErrNone {
 		writeErrorResponseJSON(ctx, w, errorCodes.ToAPIErr(s3Err), r.URL)
@@ -564,13 +550,6 @@ func (a adminAPIHandlers) AddServiceAccount(w http.ResponseWriter, r *http.Reque
 	ctx := newContext(r, w, "AddServiceAccount")
 
 	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
-
-	// Get current object layer instance.
-	objectAPI := newObjectLayerFn()
-	if objectAPI == nil {
-		writeErrorResponseJSON(ctx, w, errorCodes.ToAPIErr(ErrServerNotInitialized), r.URL)
-		return
-	}
 
 	cred, claims, owner, s3Err := validateAdminSignature(ctx, r, "")
 	if s3Err != ErrNone {
@@ -694,12 +673,6 @@ func (a adminAPIHandlers) UpdateServiceAccount(w http.ResponseWriter, r *http.Re
 
 	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
 
-	// Get current object layer instance.
-	objectAPI := newObjectLayerFn()
-	if objectAPI == nil {
-		writeErrorResponseJSON(ctx, w, errorCodes.ToAPIErr(ErrServerNotInitialized), r.URL)
-		return
-	}
 
 	cred, claims, owner, s3Err := validateAdminSignature(ctx, r, "")
 	if s3Err != ErrNone {
@@ -777,13 +750,6 @@ func (a adminAPIHandlers) InfoServiceAccount(w http.ResponseWriter, r *http.Requ
 	ctx := newContext(r, w, "InfoServiceAccount")
 
 	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
-
-	// Get current object layer instance.
-	objectAPI := newObjectLayerFn()
-	if objectAPI == nil {
-		writeErrorResponseJSON(ctx, w, errorCodes.ToAPIErr(ErrServerNotInitialized), r.URL)
-		return
-	}
 
 	cred, claims, owner, s3Err := validateAdminSignature(ctx, r, "")
 	if s3Err != ErrNone {
@@ -871,12 +837,6 @@ func (a adminAPIHandlers) ListServiceAccounts(w http.ResponseWriter, r *http.Req
 
 	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
 
-	// Get current object layer instance.
-	objectAPI := newObjectLayerFn()
-	if objectAPI == nil {
-		writeErrorResponseJSON(ctx, w, errorCodes.ToAPIErr(ErrServerNotInitialized), r.URL)
-		return
-	}
 
 	cred, claims, owner, s3Err := validateAdminSignature(ctx, r, "")
 	if s3Err != ErrNone {
@@ -942,13 +902,6 @@ func (a adminAPIHandlers) DeleteServiceAccount(w http.ResponseWriter, r *http.Re
 	ctx := newContext(r, w, "DeleteServiceAccount")
 
 	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
-
-	// Get current object layer instance.
-	objectAPI := newObjectLayerFn()
-	if objectAPI == nil {
-		writeErrorResponseJSON(ctx, w, errorCodes.ToAPIErr(ErrServerNotInitialized), r.URL)
-		return
-	}
 
 	cred, claims, owner, s3Err := validateAdminSignature(ctx, r, "")
 	if s3Err != ErrNone {

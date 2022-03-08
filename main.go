@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-openapi/loads"
 	"github.com/gorilla/mux"
 	"github.com/minio/console/restapi"
 	"github.com/minio/console/restapi/operations"
@@ -11,6 +12,7 @@ import (
 	"mt-iam/datastore"
 	"mt-iam/internal"
 	xhttp "mt-iam/internal/http"
+	"mt-iam/logger"
 	"net/http"
 	"os"
 	"strings"
@@ -27,7 +29,7 @@ func main() {
 	internal.Start()
 
 	router := mux.NewRouter().SkipClean(true).UseEncodedPath()
-	addr := ":10001"
+	addr := ":9000"
 
 	// register router
 	internal.RegisterAdminRouter(router)
@@ -75,18 +77,18 @@ func main() {
 	})
 
 	sever := xhttp.NewServer([]string{addr}, wrappedHandler, nil)
-	 sever.Start()
+	go sever.Start()
 
-	//globalOSSignalCh := make(chan os.Signal, 1)
-	//consoleSrv, err2 := initConsoleServer()
-	//if err2 != nil {
-	//	logger.FatalIf("Unable to initialize console service", err2)
-	//}
-	//go func() {
-	//	<-globalOSSignalCh
-	//	consoleSrv.Shutdown()
-	//}()
-	//consoleSrv.Serve()
+	globalOSSignalCh := make(chan os.Signal, 1)
+	consoleSrv, err2 := initConsoleServer()
+	if err2 != nil {
+		logger.FatalIf("Unable to initialize console service", err2)
+	}
+	go func() {
+		<-globalOSSignalCh
+		consoleSrv.Shutdown()
+	}()
+	consoleSrv.Serve()
 
 }
 
@@ -101,7 +103,12 @@ func initConsoleServer() (*restapi.Server, error) {
 	// enable all console environment variables
 	//minioConfigToConsoleFeatures()
 
-	api := operations.NewConsoleAPI(nil)
+	swaggerSpec, err := loads.Embedded(restapi.SwaggerJSON, restapi.FlatSwaggerJSON)
+	if err != nil {
+		return nil, err
+	}
+
+	api := operations.NewConsoleAPI(swaggerSpec)
 	api.Logger = func(_ string, _ ...interface{}) {
 		// nothing to log.
 	}
@@ -109,7 +116,6 @@ func initConsoleServer() (*restapi.Server, error) {
 	server := restapi.NewServer(api)
 	// register all APIs
 	server.ConfigureAPI()
-
 
 	consolePort := 13333
 

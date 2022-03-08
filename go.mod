@@ -10,6 +10,7 @@ require (
 	github.com/dustin/go-humanize v1.0.0
 	github.com/fsnotify/fsnotify v1.5.1
 	github.com/go-ldap/ldap/v3 v3.4.2
+	github.com/go-openapi/loads v0.20.2
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gorilla/mux v1.8.0
 	github.com/ipfs/go-ipfs-util v0.0.2
