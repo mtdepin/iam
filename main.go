@@ -29,7 +29,7 @@ func main() {
 	internal.Start()
 
 	router := mux.NewRouter().SkipClean(true).UseEncodedPath()
-	addr := ":9000"
+	addr := ":10001"
 
 	// register router
 	internal.RegisterAdminRouter(router)
@@ -101,7 +101,7 @@ func initConsoleServer() (*restapi.Server, error) {
 	}
 
 	// enable all console environment variables
-	//minioConfigToConsoleFeatures()
+	minioConfigToConsoleFeatures()
 
 	swaggerSpec, err := loads.Embedded(restapi.SwaggerJSON, restapi.FlatSwaggerJSON)
 	if err != nil {
@@ -121,26 +121,13 @@ func initConsoleServer() (*restapi.Server, error) {
 
 	server.Host = ""
 	server.Port = consolePort
-	restapi.Port = "9999"
+	restapi.Port = "13333"
 	restapi.Hostname = "localhost"
 
 	return server, nil
 }
 
-//func minioConfigToConsoleFeatures() {
-//	os.Setenv("CONSOLE_MINIO_SERVER", "localhost:9000")
-//	if value := env.Get("MINIO_LOG_QUERY_URL", ""); value != "" {
-//		os.Setenv("CONSOLE_LOG_QUERY_URL", value)
-//		if value := env.Get("MINIO_LOG_QUERY_AUTH_TOKEN", ""); value != "" {
-//			os.Setenv("CONSOLE_LOG_QUERY_AUTH_TOKEN", value)
-//		}
-//	}
-//	// Enable if prometheus URL is set.
-//	if value := env.Get("MINIO_PROMETHEUS_URL", ""); value != "" {
-//		os.Setenv("CONSOLE_PROMETHEUS_URL", value)
-//		if value := env.Get("MINIO_PROMETHEUS_JOB_ID", "minio-job"); value != "" {
-//			os.Setenv("CONSOLE_PROMETHEUS_JOB_ID", value)
-//		}
-//	}
-//	os.Setenv("CONSOLE_CERT_PASSWD", env.Get("MINIO_CERT_PASSWD", ""))
-//}
+func minioConfigToConsoleFeatures() {
+	os.Setenv("CONSOLE_MINIO_SERVER", "http://localhost:10001")
+	os.Setenv("CONSOLE_TYPE_IAM", "iam")
+}
