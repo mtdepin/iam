@@ -77,6 +77,7 @@ func main() {
 	})
 
 	sever := xhttp.NewServer([]string{addr}, wrappedHandler, nil)
+	logger.Info("listening on: %s", addr)
 	go sever.Start()
 
 	globalOSSignalCh := make(chan os.Signal, 1)

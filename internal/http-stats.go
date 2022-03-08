@@ -137,29 +137,6 @@ func (st *HTTPStats) addRequestsInQueue(i int32) {
 	atomic.AddInt32(&st.s3RequestsInQueue, i)
 }
 
-//// Converts http stats into struct to be sent back to the client.
-//func (st *HTTPStats) toServerHTTPStats() ServerHTTPStats {
-//	serverStats := ServerHTTPStats{}
-//	serverStats.S3RequestsInQueue = atomic.LoadInt32(&st.s3RequestsInQueue)
-//	serverStats.TotalS3RejectedAuth = atomic.LoadUint64(&st.rejectedRequestsAuth)
-//	serverStats.TotalS3RejectedTime = atomic.LoadUint64(&st.rejectedRequestsTime)
-//	serverStats.TotalS3RejectedHeader = atomic.LoadUint64(&st.rejectedRequestsHeader)
-//	serverStats.TotalS3RejectedInvalid = atomic.LoadUint64(&st.rejectedRequestsInvalid)
-//	serverStats.CurrentS3Requests = ServerHTTPAPIStats{
-//		APIStats: st.currentS3Requests.Load(),
-//	}
-//	serverStats.TotalS3Requests = ServerHTTPAPIStats{
-//		APIStats: st.totalS3Requests.Load(),
-//	}
-//	serverStats.TotalS3Errors = ServerHTTPAPIStats{
-//		APIStats: st.totalS3Errors.Load(),
-//	}
-//	serverStats.TotalS3Canceled = ServerHTTPAPIStats{
-//		APIStats: st.totalS3Canceled.Load(),
-//	}
-//	return serverStats
-//}
-//
 //// Update statistics from http request and response data
 func (st *HTTPStats) updateStats(api string, r *http.Request, w *logger.ResponseWriter) {
 	// A successful request has a 2xx response code
