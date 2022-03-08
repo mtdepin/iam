@@ -4,11 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/minio/console/restapi"
+	"github.com/minio/console/restapi/operations"
+	"github.com/minio/pkg/env"
 	config "mt-iam/conf"
 	"mt-iam/datastore"
 	"mt-iam/internal"
 	xhttp "mt-iam/internal/http"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -71,10 +75,66 @@ func main() {
 	})
 
 	sever := xhttp.NewServer([]string{addr}, wrappedHandler, nil)
-	//go func() {
-	//	sever.Start()
-	//}()
-	//api.InitRouter()
+	 sever.Start()
 
-	sever.Start()
+	//globalOSSignalCh := make(chan os.Signal, 1)
+	//consoleSrv, err2 := initConsoleServer()
+	//if err2 != nil {
+	//	logger.FatalIf("Unable to initialize console service", err2)
+	//}
+	//go func() {
+	//	<-globalOSSignalCh
+	//	consoleSrv.Shutdown()
+	//}()
+	//consoleSrv.Serve()
+
 }
+
+const consolePrefix = "CONSOLE_"
+
+func initConsoleServer() (*restapi.Server, error) {
+	// unset all console_ environment variables.
+	for _, cenv := range env.List(consolePrefix) {
+		os.Unsetenv(cenv)
+	}
+
+	// enable all console environment variables
+	//minioConfigToConsoleFeatures()
+
+	api := operations.NewConsoleAPI(nil)
+	api.Logger = func(_ string, _ ...interface{}) {
+		// nothing to log.
+	}
+
+	server := restapi.NewServer(api)
+	// register all APIs
+	server.ConfigureAPI()
+
+
+	consolePort := 13333
+
+	server.Host = ""
+	server.Port = consolePort
+	restapi.Port = "9999"
+	restapi.Hostname = "localhost"
+
+	return server, nil
+}
+
+//func minioConfigToConsoleFeatures() {
+//	os.Setenv("CONSOLE_MINIO_SERVER", "localhost:9000")
+//	if value := env.Get("MINIO_LOG_QUERY_URL", ""); value != "" {
+//		os.Setenv("CONSOLE_LOG_QUERY_URL", value)
+//		if value := env.Get("MINIO_LOG_QUERY_AUTH_TOKEN", ""); value != "" {
+//			os.Setenv("CONSOLE_LOG_QUERY_AUTH_TOKEN", value)
+//		}
+//	}
+//	// Enable if prometheus URL is set.
+//	if value := env.Get("MINIO_PROMETHEUS_URL", ""); value != "" {
+//		os.Setenv("CONSOLE_PROMETHEUS_URL", value)
+//		if value := env.Get("MINIO_PROMETHEUS_JOB_ID", "minio-job"); value != "" {
+//			os.Setenv("CONSOLE_PROMETHEUS_JOB_ID", value)
+//		}
+//	}
+//	os.Setenv("CONSOLE_CERT_PASSWD", env.Get("MINIO_CERT_PASSWD", ""))
+//}

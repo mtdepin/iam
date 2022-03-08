@@ -2,6 +2,8 @@ module mt-iam
 
 go 1.16
 
+replace github.com/minio/console => ../console
+
 require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.0.1 // indirect
@@ -16,20 +18,19 @@ require (
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/lestrrat-go/jwx v1.2.14 // indirect
-	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
+	github.com/minio/console v0.9.8
 	github.com/minio/highwayhash v1.0.2
-	github.com/minio/kes v0.17.6
-	github.com/minio/madmin-go v1.3.4
-	github.com/minio/minio-go/v7 v7.0.23
+	github.com/minio/kes v0.14.0
+	github.com/minio/madmin-go v1.0.17
+	github.com/minio/minio-go/v7 v7.0.13-0.20210715203016-9e713532886e
 	github.com/minio/pkg v1.0.10
 	github.com/minio/sha256-simd v1.0.0
-	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_golang v1.11.0
 	github.com/prometheus/common v0.32.1 // indirect
 	github.com/rogpeppe/go-internal v1.8.1 // indirect
 	github.com/rs/xid v1.3.0 // indirect
 	github.com/shirou/gopsutil/v3 v3.21.12 // indirect
-	github.com/spf13/viper v1.9.0
+	github.com/spf13/viper v1.7.0
 	github.com/tinylib/msgp v1.1.7-0.20211026165309-e818a1881b0e // indirect
 	github.com/valyala/tcplisten v1.0.0
 	go.opencensus.io v0.23.0
@@ -40,4 +41,5 @@ require (
 	gopkg.in/ini.v1 v1.66.3 // indirect
 	gorm.io/driver/mysql v1.2.3
 	gorm.io/gorm v1.22.5
+
 )

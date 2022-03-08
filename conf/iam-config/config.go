@@ -53,7 +53,6 @@ const (
 	IdentityLDAPSubSys   = "identity_ldap"
 	CacheSubSys          = "cache"
 	RegionSubSys         = "region"
-	EtcdSubSys           = "etcd"
 	StorageClassSubSys   = "storage_class"
 	APISubSys            = "api"
 	CompressionSubSys    = "compression"
@@ -87,7 +86,6 @@ const (
 var SubSystems = set.CreateStringSet(
 	CredentialsSubSys,
 	RegionSubSys,
-	EtcdSubSys,
 	CacheSubSys,
 	APISubSys,
 	StorageClassSubSys,
@@ -124,7 +122,6 @@ var SubSystemsDynamic = set.CreateStringSet(
 var SubSystemsSingleTargets = set.CreateStringSet([]string{
 	CredentialsSubSys,
 	RegionSubSys,
-	EtcdSubSys,
 	CacheSubSys,
 	APISubSys,
 	StorageClassSubSys,

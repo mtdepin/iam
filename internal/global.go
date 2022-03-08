@@ -19,6 +19,8 @@ var (
 	GlobalIAMSys       *IAMSys
 	globalLDAPConfig   xldap.Config
 
+	// This flag is set to 'true' by default
+	GlobalBrowserEnabled = true
 	//globalBucketTargetSys    *BucketTargetSys
 	// globalAPIConfig controls S3 API requests throttling,
 	// healthcheck readiness deadlines and cors settings.
