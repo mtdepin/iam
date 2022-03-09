@@ -1077,8 +1077,14 @@ func IsAllowed(w http.ResponseWriter, r *http.Request) {
 
 	switch getRequestAuthType(r) {
 	case authTypeUnknown, authTypeStreamingSigned:
-		writeErrorResponse(ctx, w, errorCodes.ToAPIErr(ErrSignatureVersionNotSupported), r.URL)
-		return
+		//if s3Err = isReqAuthenticated(ctx, r, "", serviceS3); s3Err != ErrNone {
+		//	writeErrorResponse(ctx, w, errorCodes.ToAPIErr(s3Err), r.URL)
+		//}
+		cred, owner, s3Err = getReqAccessKeyV4(r, "", serviceS3)
+
+
+		//writeErrorResponse(ctx, w, errorCodes.ToAPIErr(ErrSignatureVersionNotSupported), r.URL)
+		//return
 	case authTypePresignedV2, authTypeSignedV2:
 		if s3Err = isReqAuthenticatedV2(r); s3Err != ErrNone {
 			writeErrorResponse(ctx, w, errorCodes.ToAPIErr(s3Err), r.URL)

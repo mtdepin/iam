@@ -68,7 +68,7 @@ func main() {
 			r.RequestURI = strings.Replace(r.RequestURI, "/validateSignature", "", 1)
 			r.URL.Path = strings.Replace(r.URL.Path, "/validateSignature", "", 1)
 
-			internal.IsAllowed(w, r)
+			internal.ValidateSignature(w, r)
 			return
 		}
 		// Handle request using passed handler.
