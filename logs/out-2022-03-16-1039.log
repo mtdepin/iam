@@ -1,0 +1,2 @@
+2022-03-16 10:39:08	INFO	iam/main.go:90	listening on: %s:10001
+2022-03-16 10:39:23	INFO	iam/main.go:90	listening on: :10001
