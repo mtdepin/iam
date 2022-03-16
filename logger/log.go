@@ -9,5 +9,5 @@ func Error(msg string, data ...interface{}) {
 }
 
 func Info(msg string, data ...interface{}) {
-	fmt.Println(msg)
+	fmt.Println(msg, data)
 }
