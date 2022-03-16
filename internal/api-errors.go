@@ -9,7 +9,7 @@ import (
 	"mt-iam/internal/crypto"
 	"mt-iam/internal/event"
 	"mt-iam/internal/hash"
-	"mt-iam/logger"
+	"mt-iam/pkg/logger"
 	"net/http"
 
 	"strings"

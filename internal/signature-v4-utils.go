@@ -15,7 +15,7 @@ import (
 
 	"mt-iam/internal/auth"
 	xhttp "mt-iam/internal/http"
-	"mt-iam/logger"
+	"mt-iam/pkg/logger"
 )
 
 // http Header "x-amz-content-sha256" == "UNSIGNED-PAYLOAD" indicates that the

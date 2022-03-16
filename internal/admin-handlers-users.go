@@ -14,7 +14,7 @@ import (
 	"io"
 	"io/ioutil"
 	"mt-iam/internal/auth"
-	"mt-iam/logger"
+	"mt-iam/pkg/logger"
 	"net/http"
 )
 

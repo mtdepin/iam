@@ -3,7 +3,7 @@
 package opa
 
 import (
-	config "mt-iam/conf/iam-config"
+	config2 "mt-iam/pkg/iam-config"
 )
 
 // Legacy OPA envs
@@ -13,17 +13,17 @@ const (
 )
 
 // SetPolicyOPAConfig - One time migration code needed, for migrating from older config to new for PolicyOPAConfig.
-func SetPolicyOPAConfig(s config.Config, opaArgs Args) {
+func SetPolicyOPAConfig(s config2.Config, opaArgs Args) {
 	if opaArgs.URL == nil || opaArgs.URL.String() == "" {
 		// Do not enable if opaArgs was empty.
 		return
 	}
-	s[config.PolicyOPASubSys][config.Default] = config.KVS{
-		config.KV{
+	s[config2.PolicyOPASubSys][config2.Default] = config2.KVS{
+		config2.KV{
 			Key:   URL,
 			Value: opaArgs.URL.String(),
 		},
-		config.KV{
+		config2.KV{
 			Key:   AuthToken,
 			Value: opaArgs.AuthToken,
 		},

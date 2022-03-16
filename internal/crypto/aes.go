@@ -6,7 +6,7 @@ import (
 	"crypto/cipher"
 	"encoding/base64"
 	"fmt"
-	"mt-iam/logger"
+	"mt-iam/pkg/logger"
 )
 
 const (

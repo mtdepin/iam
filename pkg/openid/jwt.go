@@ -8,9 +8,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	config "mt-iam/conf/iam-config"
-	"mt-iam/conf/openid/provider"
-	"mt-iam/internal/auth"
+	auth2 "mt-iam/internal/auth"
+	config2 "mt-iam/pkg/iam-config"
+	provider2 "mt-iam/pkg/openid/provider"
 	"net/http"
 	"strconv"
 	"strings"
@@ -40,20 +40,20 @@ type Config struct {
 	ClientID     string
 	ClientSecret string
 
-	provider    provider.Provider
+	provider    provider2.Provider
 	publicKeys  map[string]crypto.PublicKey
 	transport   *http.Transport
 	closeRespFn func(io.ReadCloser)
 }
 
 // LookupUser lookup userid for the provider
-func (r Config) LookupUser(userid string) (provider.User, error) {
+func (r Config) LookupUser(userid string) (provider2.User, error) {
 	if r.provider != nil {
 		user, err := r.provider.LookupUser(userid)
-		if err != nil && err != provider.ErrAccessTokenExpired {
+		if err != nil && err != provider2.ErrAccessTokenExpired {
 			return user, err
 		}
-		if err == provider.ErrAccessTokenExpired {
+		if err == provider2.ErrAccessTokenExpired {
 			if err = r.provider.LoginWithClientID(r.ClientID, r.ClientSecret); err != nil {
 				return user, err
 			}
@@ -63,7 +63,7 @@ func (r Config) LookupUser(userid string) (provider.User, error) {
 	}
 	// Without any specific logic for a provider, all accounts
 	// are always enabled.
-	return provider.User{ID: userid, Enabled: true}, nil
+	return provider2.User{ID: userid, Enabled: true}, nil
 }
 
 const (
@@ -73,7 +73,7 @@ const (
 // InitializeProvider initializes if any additional vendor specific
 // information was provided, initialization will return an error
 // initial login fails.
-func (r Config) InitializeProvider(kvs config.KVS) error {
+func (r Config) InitializeProvider(kvs config2.KVS) error {
 	vendor := env.Get(EnvIdentityOpenIDVendor, kvs.Get(Vendor))
 	if vendor == "" {
 		return nil
@@ -96,11 +96,11 @@ func (r Config) ProviderEnabled() bool {
 // InitializeKeycloakProvider - initializes keycloak provider
 func (r *Config) InitializeKeycloakProvider(adminURL, realm string) error {
 	var err error
-	r.provider, err = provider.KeyCloak(
-		provider.WithAdminURL(adminURL),
-		provider.WithOpenIDConfig(provider.DiscoveryDoc(r.DiscoveryDoc)),
-		provider.WithTransport(r.transport),
-		provider.WithRealm(realm),
+	r.provider, err = provider2.KeyCloak(
+		provider2.WithAdminURL(adminURL),
+		provider2.WithOpenIDConfig(provider2.DiscoveryDoc(r.DiscoveryDoc)),
+		provider2.WithTransport(r.transport),
+		provider2.WithRealm(realm),
 	)
 	return err
 }
@@ -170,14 +170,14 @@ func GetDefaultExpiration(dsecs string) (time.Duration, error) {
 	if dsecs != "" {
 		expirySecs, err := strconv.ParseInt(dsecs, 10, 64)
 		if err != nil {
-			return 0, auth.ErrInvalidDuration
+			return 0, auth2.ErrInvalidDuration
 		}
 
 		// The duration, in seconds, of the role session.
 		// The value can range from 900 seconds (15 minutes)
 		// up to 365 days.
 		if expirySecs < 900 || expirySecs > 31536000 {
-			return 0, auth.ErrInvalidDuration
+			return 0, auth2.ErrInvalidDuration
 		}
 
 		defaultExpiryDuration = time.Duration(expirySecs) * time.Second
@@ -196,7 +196,7 @@ func updateClaimsExpiry(dsecs string, claims map[string]interface{}) error {
 		return nil
 	}
 
-	expAt, err := auth.ExpToInt64(expStr)
+	expAt, err := auth2.ExpToInt64(expStr)
 	if err != nil {
 		return err
 	}
@@ -342,36 +342,36 @@ func parseDiscoveryDoc(u *xnet.URL, transport *http.Transport, closeRespFn func(
 
 // DefaultKVS - default config for OpenID config
 var (
-	DefaultKVS = config.KVS{
-		config.KV{
+	DefaultKVS = config2.KVS{
+		config2.KV{
 			Key:   ConfigURL,
 			Value: "",
 		},
-		config.KV{
+		config2.KV{
 			Key:   ClientID,
 			Value: "",
 		},
-		config.KV{
+		config2.KV{
 			Key:   ClientSecret,
 			Value: "",
 		},
-		config.KV{
+		config2.KV{
 			Key:   ClaimName,
 			Value: iampolicy.PolicyName,
 		},
-		config.KV{
+		config2.KV{
 			Key:   ClaimPrefix,
 			Value: "",
 		},
-		config.KV{
+		config2.KV{
 			Key:   RedirectURI,
 			Value: "",
 		},
-		config.KV{
+		config2.KV{
 			Key:   Scopes,
 			Value: "",
 		},
-		config.KV{
+		config2.KV{
 			Key:   JwksURL,
 			Value: "",
 		},
@@ -379,13 +379,13 @@ var (
 )
 
 // Enabled returns if jwks is enabled.
-func Enabled(kvs config.KVS) bool {
+func Enabled(kvs config2.KVS) bool {
 	return kvs.Get(JwksURL) != ""
 }
 
 // LookupConfig lookup jwks from config, override with any ENVs.
-func LookupConfig(kvs config.KVS, transport *http.Transport, closeRespFn func(io.ReadCloser)) (c Config, err error) {
-	if err = config.CheckValidKeys(config.IdentityOpenIDSubSys, kvs, DefaultKVS); err != nil {
+func LookupConfig(kvs config2.KVS, transport *http.Transport, closeRespFn func(io.ReadCloser)) (c Config, err error) {
+	if err = config2.CheckValidKeys(config2.IdentityOpenIDSubSys, kvs, DefaultKVS); err != nil {
 		return c, err
 	}
 
@@ -423,7 +423,7 @@ func LookupConfig(kvs config.KVS, transport *http.Transport, closeRespFn func(io
 		for _, scope := range strings.Split(scopeList, ",") {
 			scope = strings.TrimSpace(scope)
 			if scope == "" {
-				return c, config.Errorf("empty scope value is not allowed '%s', please refer to our documentation", scopeList)
+				return c, config2.Errorf("empty scope value is not allowed '%s', please refer to our documentation", scopeList)
 			}
 			scopes = append(scopes, scope)
 		}

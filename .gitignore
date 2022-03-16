@@ -21,3 +21,5 @@ stage/
 .sia_temp/
 node_modules/
 multi/
+logs/
+logs/*

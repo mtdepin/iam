@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"mt-iam/logger/message/audit"
+	audit2 "mt-iam/pkg/logger/message/audit"
 	"net/http"
 	"strconv"
 	"time"
@@ -111,7 +111,7 @@ func (lrw *ResponseWriter) Size() int {
 const contextAuditKey = contextKeyType("audit-entry")
 
 // SetAuditEntry sets Audit info in the context.
-func SetAuditEntry(ctx context.Context, audit *audit.Entry) context.Context {
+func SetAuditEntry(ctx context.Context, audit *audit2.Entry) context.Context {
 	if ctx == nil {
 		LogIf(context.Background(), fmt.Errorf("context is nil"))
 		return nil
@@ -120,14 +120,14 @@ func SetAuditEntry(ctx context.Context, audit *audit.Entry) context.Context {
 }
 
 // GetAuditEntry returns Audit entry if set.
-func GetAuditEntry(ctx context.Context) *audit.Entry {
+func GetAuditEntry(ctx context.Context) *audit2.Entry {
 	if ctx != nil {
-		r, ok := ctx.Value(contextAuditKey).(*audit.Entry)
+		r, ok := ctx.Value(contextAuditKey).(*audit2.Entry)
 		if ok {
 			return r
 		}
-		r = &audit.Entry{
-			Version:      audit.Version,
+		r = &audit2.Entry{
+			Version:      audit2.Version,
 			DeploymentID: globalDeploymentID,
 			Time:         time.Now().UTC().Format(time.RFC3339Nano),
 		}
@@ -208,7 +208,7 @@ func AuditLog(ctx context.Context, w http.ResponseWriter, r *http.Request, reqCl
 		return
 	}
 
-	var entry audit.Entry
+	var entry audit2.Entry
 
 	if w != nil && r != nil {
 		reqInfo := GetReqInfo(ctx)
@@ -216,7 +216,7 @@ func AuditLog(ctx context.Context, w http.ResponseWriter, r *http.Request, reqCl
 			return
 		}
 
-		entry = audit.ToEntry(w, r, reqClaims, globalDeploymentID)
+		entry = audit2.ToEntry(w, r, reqClaims, globalDeploymentID)
 
 		st, ok := w.(*ResponseWriter)
 		if ok {

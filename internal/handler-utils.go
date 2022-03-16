@@ -19,7 +19,7 @@ import (
 	"mt-iam/internal/auth"
 	"mt-iam/internal/handlers"
 	xhttp "mt-iam/internal/http"
-	"mt-iam/logger"
+	"mt-iam/pkg/logger"
 )
 
 const (

@@ -3,10 +3,9 @@
 package audit
 
 import (
+	"mt-iam/internal/handlers"
 	"net/http"
 	"time"
-
-	"mt-iam/internal/handlers"
 )
 
 // Version - represents the current version of audit log structure.

@@ -10,8 +10,8 @@ import (
 	"errors"
 	"io"
 	"io/ioutil"
-	db "mt-iam/datastore"
-	"mt-iam/logger"
+	db "mt-iam/pkg/datastore"
+	"mt-iam/pkg/logger"
 	"net/http"
 
 	"mt-iam/internal/auth"

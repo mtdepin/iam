@@ -3,11 +3,11 @@ package internal
 import (
 	"crypto/x509"
 	"github.com/dustin/go-humanize"
-	xldap "mt-iam/conf/ldap"
-	"mt-iam/conf/openid"
-	"mt-iam/conf/policy/opa"
 	"mt-iam/internal/auth"
 	"mt-iam/internal/pubsub"
+	"mt-iam/pkg/openid"
+	xldap "mt-iam/pkg/ldap"
+	"mt-iam/pkg/policy/opa"
 	"time"
 )
 

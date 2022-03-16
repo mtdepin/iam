@@ -8,9 +8,9 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
-	config "mt-iam/conf/iam-config"
-	"mt-iam/internal/auth"
-	"mt-iam/logger"
+	auth2 "mt-iam/internal/auth"
+	config2 "mt-iam/pkg/iam-config"
+	logger2 "mt-iam/pkg/logger"
 	"net"
 	"strconv"
 	"strings"
@@ -102,52 +102,52 @@ var removedKeys = []string{
 
 // DefaultKVS - default config for LDAP config
 var (
-	DefaultKVS = config.KVS{
-		config.KV{
+	DefaultKVS = config2.KVS{
+		config2.KV{
 			Key:   ServerAddr,
 			Value: "",
 		},
-		config.KV{
+		config2.KV{
 			Key:   UsernameFormat,
 			Value: "",
 		},
-		config.KV{
+		config2.KV{
 			Key:   UserDNSearchBaseDN,
 			Value: "",
 		},
-		config.KV{
+		config2.KV{
 			Key:   UserDNSearchFilter,
 			Value: "",
 		},
-		config.KV{
+		config2.KV{
 			Key:   GroupSearchFilter,
 			Value: "",
 		},
-		config.KV{
+		config2.KV{
 			Key:   GroupSearchBaseDN,
 			Value: "",
 		},
-		config.KV{
+		config2.KV{
 			Key:   STSExpiry,
 			Value: "1h",
 		},
-		config.KV{
+		config2.KV{
 			Key:   TLSSkipVerify,
-			Value: config.EnableOff,
+			Value: config2.EnableOff,
 		},
-		config.KV{
+		config2.KV{
 			Key:   ServerInsecure,
-			Value: config.EnableOff,
+			Value: config2.EnableOff,
 		},
-		config.KV{
+		config2.KV{
 			Key:   ServerStartTLS,
-			Value: config.EnableOff,
+			Value: config2.EnableOff,
 		},
-		config.KV{
+		config2.KV{
 			Key:   LookupBindDN,
 			Value: "",
 		},
-		config.KV{
+		config2.KV{
 			Key:   LookupBindPassword,
 			Value: "",
 		},
@@ -415,13 +415,13 @@ func (l Config) GetExpiryDuration(dsecs string) (time.Duration, error) {
 
 	d, err := strconv.Atoi(dsecs)
 	if err != nil {
-		return 0, auth.ErrInvalidDuration
+		return 0, auth2.ErrInvalidDuration
 	}
 
 	dur := time.Duration(d) * time.Second
 
 	if dur < minLDAPExpiry || dur > maxLDAPExpiry {
-		return 0, auth.ErrInvalidDuration
+		return 0, auth2.ErrInvalidDuration
 	}
 	return dur, nil
 }
@@ -546,12 +546,12 @@ func (l Config) EnabledWithLookupBind() bool {
 }
 
 // Enabled returns if jwks is enabled.
-func Enabled(kvs config.KVS) bool {
+func Enabled(kvs config2.KVS) bool {
 	return kvs.Get(ServerAddr) != ""
 }
 
 // Lookup - initializes LDAP config, overrides config, if any ENV values are set.
-func Lookup(kvs config.KVS, rootCAs *x509.CertPool) (l Config, err error) {
+func Lookup(kvs config2.KVS, rootCAs *x509.CertPool) (l Config, err error) {
 	l = Config{}
 
 	// Purge all removed keys first
@@ -559,7 +559,7 @@ func Lookup(kvs config.KVS, rootCAs *x509.CertPool) (l Config, err error) {
 		kvs.Delete(k)
 	}
 
-	if err = config.CheckValidKeys(config.IdentityLDAPSubSys, kvs, DefaultKVS); err != nil {
+	if err = config2.CheckValidKeys(config2.IdentityLDAPSubSys, kvs, DefaultKVS); err != nil {
 		return l, err
 	}
 	ldapServer := env.Get(EnvServerAddr, kvs.Get(ServerAddr))
@@ -571,7 +571,7 @@ func Lookup(kvs config.KVS, rootCAs *x509.CertPool) (l Config, err error) {
 	l.ServerAddr = ldapServer
 	l.stsExpiryDuration = defaultLDAPExpiry
 	if v := env.Get(EnvSTSExpiry, kvs.Get(STSExpiry)); v != "" {
-		logger.Info("DEPRECATION WARNING: Support for configuring the default LDAP credentials expiry duration will be removed in a future release. Please use the `DurationSeconds` parameter in the LDAP STS API instead.")
+		logger2.Info("DEPRECATION WARNING: Support for configuring the default LDAP credentials expiry duration will be removed in a future release. Please use the `DurationSeconds` parameter in the LDAP STS API instead.")
 		expDur, err := time.ParseDuration(v)
 		if err != nil {
 			return l, errors.New("LDAP expiry time err:" + err.Error())
@@ -588,19 +588,19 @@ func Lookup(kvs config.KVS, rootCAs *x509.CertPool) (l Config, err error) {
 
 	// LDAP connection configuration
 	if v := env.Get(EnvServerInsecure, kvs.Get(ServerInsecure)); v != "" {
-		l.serverInsecure, err = config.ParseBool(v)
+		l.serverInsecure, err = config2.ParseBool(v)
 		if err != nil {
 			return l, err
 		}
 	}
 	if v := env.Get(EnvServerStartTLS, kvs.Get(ServerStartTLS)); v != "" {
-		l.serverStartTLS, err = config.ParseBool(v)
+		l.serverStartTLS, err = config2.ParseBool(v)
 		if err != nil {
 			return l, err
 		}
 	}
 	if v := env.Get(EnvTLSSkipVerify, kvs.Get(TLSSkipVerify)); v != "" {
-		l.tlsSkipVerify, err = config.ParseBool(v)
+		l.tlsSkipVerify, err = config2.ParseBool(v)
 		if err != nil {
 			return l, err
 		}

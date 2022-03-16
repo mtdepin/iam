@@ -2,7 +2,9 @@
 
 package openid
 
-import config "mt-iam/conf/iam-config"
+import (
+	config2 "mt-iam/pkg/iam-config"
+)
 
 // Legacy envs
 const (
@@ -10,21 +12,21 @@ const (
 )
 
 // SetIdentityOpenID - One time migration code needed, for migrating from older config to new for OpenIDConfig.
-func SetIdentityOpenID(s config.Config, cfg Config) {
+func SetIdentityOpenID(s config2.Config, cfg Config) {
 	if cfg.JWKS.URL == nil || cfg.JWKS.URL.String() == "" {
 		// No need to save not-enabled settings in new config.
 		return
 	}
-	s[config.IdentityOpenIDSubSys][config.Default] = config.KVS{
-		config.KV{
+	s[config2.IdentityOpenIDSubSys][config2.Default] = config2.KVS{
+		config2.KV{
 			Key:   JwksURL,
 			Value: cfg.JWKS.URL.String(),
 		},
-		config.KV{
+		config2.KV{
 			Key:   ConfigURL,
 			Value: "",
 		},
-		config.KV{
+		config2.KV{
 			Key:   ClaimPrefix,
 			Value: "",
 		},

@@ -4,7 +4,7 @@ package internal
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
-	"mt-iam/logger"
+	"mt-iam/pkg/logger"
 	"net/http"
 	"strings"
 	"sync"
