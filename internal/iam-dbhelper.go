@@ -1563,10 +1563,11 @@ func (sys *IAMSys) ListServiceAccounts(ctx context.Context, accessKey string) ([
 		//	groups = append(groups, group.Name)
 		//}
 		cred := auth.Credentials{
-			AccessKey:    dbCred.AccessKey,
-			SecretKey:    dbCred.SecretKey,
+			AccessKey: dbCred.AccessKey,
+			//SecretKey:    dbCred.SecretKey,
 			Expiration:   dbCred.Expiration,
 			SessionToken: dbCred.SessionToken,
+			CreatTime:    dbCred.CreatedAt,
 			Status: func() string {
 				if dbCred.Status {
 					return auth.AccountOn

@@ -1,5 +1,3 @@
-
-
 package auth
 
 import (
@@ -82,6 +80,7 @@ type Credentials struct {
 	SecretKey    string    `xml:"SecretAccessKey" json:"secretKey,omitempty"`
 	Expiration   time.Time `xml:"Expiration" json:"expiration,omitempty"`
 	SessionToken string    `xml:"SessionToken" json:"sessionToken,omitempty"`
+	CreatTime    time.Time `xml:"CreatTime" json:"creatTime,omitempty"`
 	Status       string    `xml:"-" json:"status,omitempty"`
 	ParentUser   string    `xml:"-" json:"parentUser,omitempty"`
 	Groups       []string  `xml:"-" json:"groups,omitempty"`
