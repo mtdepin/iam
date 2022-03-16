@@ -5,8 +5,8 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
-	config "mt-iam/conf"
-	"mt-iam/logger"
+	config2 "mt-iam/pkg/config"
+	logger2 "mt-iam/pkg/logger"
 )
 
 const (
@@ -33,10 +33,10 @@ var GlobalDB *Database
 func InitDB() {
 	GlobalDB = &Database{}
 
-	dbUrl := config.GetString(DbUrl)
-	dbname := config.GetString(DbName)
-	dbuser := config.GetString(DBUser)
-	dbpwd := config.GetString(DBPWD)
+	dbUrl := config2.GetString(DbUrl)
+	dbname := config2.GetString(DbName)
+	dbuser := config2.GetString(DBUser)
+	dbpwd := config2.GetString(DBPWD)
 
 	dc := &DBconfig{
 		DBName:     dbname,
@@ -64,12 +64,12 @@ func InitDB() {
 		//Logger: newLogger,
 	})
 	if err != nil {
-		logger.FatalIf("Unable to init database", err)
+		logger2.FatalIf("Unable to init database", err)
 	}
 
 	sqldb, err := db.DB()
 	if err != nil {
-		logger.FatalIf("Unable to init database", err)
+		logger2.FatalIf("Unable to init database", err)
 	}
 
 	sqldb.SetMaxIdleConns(200)

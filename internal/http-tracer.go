@@ -7,7 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"mt-iam/internal/handlers"
-	"mt-iam/logger"
+	"mt-iam/pkg/logger"
 	"net"
 	"net/http"
 	"reflect"

@@ -6,7 +6,7 @@ import (
 	"errors"
 	"mt-iam/internal/auth"
 	"mt-iam/internal/crypto"
-	"mt-iam/logger"
+	logger2 "mt-iam/pkg/logger"
 
 	iampolicy "github.com/minio/pkg/iam/policy"
 	"gorm.io/gorm"
@@ -658,7 +658,7 @@ func (c *Credential) StoreTenantInfo(quota int, svcGenFunc func(map[string]inter
 
 			policyBuf, err := json.Marshal(adminpolicy)
 			if err != nil {
-				logger.Error("json marshal failed")
+				logger2.Error("json marshal failed")
 				return err
 			}
 			if len(policyBuf) > 0 {
@@ -671,12 +671,12 @@ func (c *Credential) StoreTenantInfo(quota int, svcGenFunc func(map[string]inter
 			//add by lyc begin
 			mtAccount := GetMtAccount(c.AccessKey)
 			if mtAccount == nil {
-				logger.Error("database err: get mt_account failed")
+				logger2.Error("database err: get mt_account failed")
 				return errors.New("database err: get mt_account failed")
 			} else if mtAccount.TenantId > 0 {
 				tenantUser := GetAccountByUid(mtAccount.TenantId)
 				if tenantUser == nil {
-					logger.Error("database err: get mt_account failed")
+					logger2.Error("database err: get mt_account failed")
 					return errors.New("database err: get mt_account failed")
 				} else {
 					m["TenantId"] = tenantUser.Uid

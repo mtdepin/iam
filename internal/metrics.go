@@ -8,7 +8,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"mt-iam/internal/handlers"
 	xhttp "mt-iam/internal/http"
-	"mt-iam/logger"
+	"mt-iam/pkg/logger"
 	"net/http"
 	"net/url"
 	"strconv"

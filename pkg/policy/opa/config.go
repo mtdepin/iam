@@ -7,12 +7,12 @@ import (
 	"encoding/json"
 	"io"
 	"io/ioutil"
+	config2 "mt-iam/pkg/iam-config"
 	"net/http"
 
 	"github.com/minio/pkg/env"
 	iampolicy "github.com/minio/pkg/iam/policy"
 	xnet "github.com/minio/pkg/net"
-	config "mt-iam/conf/iam-config"
 )
 
 // Env IAM OPA URL
@@ -26,12 +26,12 @@ const (
 
 // DefaultKVS - default config for OPA config
 var (
-	DefaultKVS = config.KVS{
-		config.KV{
+	DefaultKVS = config2.KVS{
+		config2.KV{
 			Key:   URL,
 			Value: "",
 		},
-		config.KV{
+		config2.KV{
 			Key:   AuthToken,
 			Value: "",
 		},
@@ -95,15 +95,15 @@ type Opa struct {
 }
 
 // Enabled returns if opa is enabled.
-func Enabled(kvs config.KVS) bool {
+func Enabled(kvs config2.KVS) bool {
 	return kvs.Get(URL) != ""
 }
 
 // LookupConfig lookup Opa from config, override with any ENVs.
-func LookupConfig(kv config.KVS, transport *http.Transport, closeRespFn func(io.ReadCloser)) (Args, error) {
+func LookupConfig(kv config2.KVS, transport *http.Transport, closeRespFn func(io.ReadCloser)) (Args, error) {
 	args := Args{}
 
-	if err := config.CheckValidKeys(config.PolicyOPASubSys, kv, DefaultKVS); err != nil {
+	if err := config2.CheckValidKeys(config2.PolicyOPASubSys, kv, DefaultKVS); err != nil {
 		return args, err
 	}
 

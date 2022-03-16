@@ -5,7 +5,7 @@ package internal
 import (
 	"context"
 	"encoding/xml"
-	"mt-iam/logger"
+	"mt-iam/pkg/logger"
 	"net/http"
 
 	xhttp "mt-iam/internal/http"

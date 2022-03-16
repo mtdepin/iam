@@ -3,7 +3,7 @@ package internal
 import (
 	"encoding/json"
 	"github.com/minio/madmin-go"
-	"mt-iam/logger"
+	"mt-iam/pkg/logger"
 	"net/http"
 )
 

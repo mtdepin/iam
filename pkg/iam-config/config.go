@@ -8,7 +8,7 @@ import (
 	"github.com/minio/madmin-go"
 	"github.com/minio/minio-go/v7/pkg/set"
 	"io"
-	"mt-iam/internal/auth"
+	auth2 "mt-iam/internal/auth"
 	"regexp"
 	"strings"
 
@@ -402,11 +402,11 @@ var (
 	DefaultCredentialKVS = KVS{
 		KV{
 			Key:   AccessKey,
-			Value: auth.DefaultAccessKey,
+			Value: auth2.DefaultAccessKey,
 		},
 		KV{
 			Key:   SecretKey,
-			Value: auth.DefaultSecretKey,
+			Value: auth2.DefaultSecretKey,
 		},
 	}
 
@@ -419,17 +419,17 @@ var (
 )
 
 // LookupCreds - lookup credentials from config.
-func LookupCreds(kv KVS) (auth.Credentials, error) {
+func LookupCreds(kv KVS) (auth2.Credentials, error) {
 	if err := CheckValidKeys(CredentialsSubSys, kv, DefaultCredentialKVS); err != nil {
-		return auth.Credentials{}, err
+		return auth2.Credentials{}, err
 	}
 	accessKey := kv.Get(AccessKey)
 	secretKey := kv.Get(SecretKey)
 	if accessKey == "" || secretKey == "" {
-		accessKey = auth.DefaultAccessKey
-		secretKey = auth.DefaultSecretKey
+		accessKey = auth2.DefaultAccessKey
+		secretKey = auth2.DefaultSecretKey
 	}
-	return auth.CreateCredentials(accessKey, secretKey)
+	return auth2.CreateCredentials(accessKey, secretKey)
 }
 
 var validRegionRegex = regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9-_-]+$")

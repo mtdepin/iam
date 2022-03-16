@@ -8,11 +8,11 @@ import (
 	"github.com/minio/console/restapi"
 	"github.com/minio/console/restapi/operations"
 	"github.com/minio/pkg/env"
-	config "mt-iam/conf"
-	"mt-iam/datastore"
-	"mt-iam/internal"
-	xhttp "mt-iam/internal/http"
-	"mt-iam/logger"
+	internal2 "mt-iam/internal"
+	http2 "mt-iam/internal/http"
+	 "mt-iam/pkg/config"
+	datastore2 "mt-iam/pkg/datastore"
+	logger2 "mt-iam/pkg/logger"
 	"net/http"
 	"os"
 	"strings"
@@ -31,17 +31,17 @@ func main() {
 	if level == "" {
 		level = "info"
 	}
-	logger.InitLogger(level)
+	logger2.InitLogger(level)
 
-	datastore.InitDB()
-	internal.Start()
+	datastore2.InitDB()
+	internal2.Start()
 
 	router := mux.NewRouter().SkipClean(true).UseEncodedPath()
 	addr := ":10001"
 
 	// register router
-	internal.RegisterAdminRouter(router)
-	internal.RegisterSTSRouter(router)
+	internal2.RegisterAdminRouter(router)
+	internal2.RegisterSTSRouter(router)
 
 
 
@@ -51,18 +51,18 @@ func main() {
 		if strings.Contains(r.RequestURI, "/claim") {
 			//把前缀去掉
 			r.RequestURI = strings.Replace(r.RequestURI, "/claim", "", 1)
-			token := internal.MustGetClaimsFromToken(r)
+			token := internal2.MustGetClaimsFromToken(r)
 			// todo 处理异常结果返回
 			if token != nil {
 				//写入返回结果
-				w.Header().Set(xhttp.ContentType, "content-type/json")
+				w.Header().Set(http2.ContentType, "content-type/json")
 				w.WriteHeader(200)
 				result, _ := json.Marshal(token)
 				_, _ = w.Write(result)
 				w.(http.Flusher).Flush()
 				return
 			}
-			w.Header().Set(xhttp.ContentType, "content-type/json")
+			w.Header().Set(http2.ContentType, "content-type/json")
 			w.WriteHeader(200)
 			_, _ = w.Write([]byte(""))
 			w.(http.Flusher).Flush()
@@ -72,13 +72,13 @@ func main() {
 			r.URL.Path = strings.Replace(r.URL.Path, "/auth", "", 1)
 
 			//r.Host = "192.168.1.135:9000"
-			internal.IsAllowed(w, r)
+			internal2.IsAllowed(w, r)
 			return
 		} else if strings.Contains(r.RequestURI, "/validateSignature") {
 			r.RequestURI = strings.Replace(r.RequestURI, "/validateSignature", "", 1)
 			r.URL.Path = strings.Replace(r.URL.Path, "/validateSignature", "", 1)
 
-			internal.ValidateSignature(w, r)
+			internal2.ValidateSignature(w, r)
 			return
 		}
 		// Handle request using passed handler.
@@ -86,14 +86,14 @@ func main() {
 		router.ServeHTTP(w, r)
 	})
 
-	sever := xhttp.NewServer([]string{addr}, wrappedHandler, nil)
-	logger.Infof("listening on: %s", addr)
+	sever := http2.NewServer([]string{addr}, wrappedHandler, nil)
+	logger2.Infof("listening on: %s", addr)
 	go sever.Start()
 
 	globalOSSignalCh := make(chan os.Signal, 1)
 	consoleSrv, err2 := initConsoleServer()
 	if err2 != nil {
-		logger.FatalIf("Unable to initialize console service", err2)
+		logger2.FatalIf("Unable to initialize console service", err2)
 	}
 	go func() {
 		<-globalOSSignalCh

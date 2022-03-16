@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"go/build"
 	"hash"
+	log2 "mt-iam/pkg/logger/message/log"
 	"net/http"
 	"path/filepath"
 	"reflect"
@@ -18,7 +19,6 @@ import (
 
 	"github.com/minio/highwayhash"
 	"github.com/minio/minio-go/v7/pkg/set"
-	"mt-iam/logger/message/log"
 )
 
 var (
@@ -332,7 +332,7 @@ func logIf(ctx context.Context, err error, errKind ...interface{}) {
 	if req.DeploymentID == "" {
 		req.DeploymentID = globalDeploymentID
 	}
-	entry := log.Entry{
+	entry := log2.Entry{
 		DeploymentID: req.DeploymentID,
 		Level:        ErrorLvl.String(),
 		LogKind:      logKind,
@@ -341,14 +341,14 @@ func logIf(ctx context.Context, err error, errKind ...interface{}) {
 		RequestID:    req.RequestID,
 		UserAgent:    req.UserAgent,
 		Time:         time.Now().UTC().Format(time.RFC3339Nano),
-		API: &log.API{
+		API: &log2.API{
 			Name: API,
-			Args: &log.Args{
+			Args: &log2.Args{
 				Bucket: req.BucketName,
 				Object: req.ObjectName,
 			},
 		},
-		Trace: &log.Trace{
+		Trace: &log2.Trace{
 			Message:   message,
 			Source:    trace,
 			Variables: tags,

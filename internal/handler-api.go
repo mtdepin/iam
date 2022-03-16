@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"mt-iam/logger"
+	"mt-iam/pkg/logger"
 	"net/http"
 	"sync"
 	"time"

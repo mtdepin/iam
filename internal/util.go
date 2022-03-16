@@ -10,7 +10,7 @@ import (
 	"io"
 	"mt-iam/internal/handlers"
 	xhttp "mt-iam/internal/http"
-	"mt-iam/logger"
+	"mt-iam/pkg/logger"
 	"net/http"
 	"net/url"
 	"path"
