@@ -12,7 +12,7 @@ import (
 	http2 "mt-iam/internal/http"
 	 "mt-iam/pkg/config"
 	datastore2 "mt-iam/pkg/datastore"
-	logger2 "mt-iam/pkg/logger"
+	"mt-iam/pkg/logger"
 	"net/http"
 	"os"
 	"strings"
@@ -31,7 +31,7 @@ func main() {
 	if level == "" {
 		level = "info"
 	}
-	logger2.InitLogger(level)
+	logger.InitLogger(level)
 
 	datastore2.InitDB()
 	internal2.Start()
@@ -42,8 +42,6 @@ func main() {
 	// register router
 	internal2.RegisterAdminRouter(router)
 	internal2.RegisterSTSRouter(router)
-
-
 
 	//包装的handler，处理定义之外的请求
 	wrappedHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -87,13 +85,13 @@ func main() {
 	})
 
 	sever := http2.NewServer([]string{addr}, wrappedHandler, nil)
-	logger2.Infof("listening on: %s", addr)
+	logger.Infof("api listening at: %s", addr)
 	go sever.Start()
 
 	globalOSSignalCh := make(chan os.Signal, 1)
 	consoleSrv, err2 := initConsoleServer()
 	if err2 != nil {
-		logger2.FatalIf("Unable to initialize console service", err2)
+		logger.FatalIf("Unable to initialize console service", err2)
 	}
 	go func() {
 		<-globalOSSignalCh
@@ -119,12 +117,12 @@ func initConsoleServer() (*restapi.Server, error) {
 		return nil, err
 	}
 
-	api := operations.NewConsoleAPI(swaggerSpec)
-	api.Logger = func(_ string, _ ...interface{}) {
-		// nothing to log.
+	console := operations.NewConsoleAPI(swaggerSpec)
+	console.Logger = func(format  string, data ...interface{}) {
+		logger.Infof(format, data)
 	}
 
-	server := restapi.NewServer(api)
+	server := restapi.NewServer(console)
 	// register all APIs
 	server.ConfigureAPI()
 
