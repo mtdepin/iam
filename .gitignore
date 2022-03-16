@@ -1,7 +1,6 @@
 **/*.swp
 cover.out
 *~
-minio
 !*/
 site/
 **/*.test

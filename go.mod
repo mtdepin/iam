@@ -19,6 +19,7 @@ require (
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/lestrrat-go/jwx v1.2.14 // indirect
+	github.com/lestrrat-go/strftime v1.0.5
 	github.com/minio/console v0.9.8
 	github.com/minio/highwayhash v1.0.2
 	github.com/minio/kes v0.14.0
@@ -35,11 +36,13 @@ require (
 	github.com/tinylib/msgp v1.1.7-0.20211026165309-e818a1881b0e // indirect
 	github.com/valyala/tcplisten v1.0.0
 	go.opencensus.io v0.23.0
+	go.uber.org/zap v1.16.1-0.20210329175301-c23abee72d19
 	golang.org/x/crypto v0.0.0-20220128200615-198e4374d7ed // indirect
 	golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd // indirect
 	golang.org/x/sys v0.0.0-20220128215802-99c3d69c2c27 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/ini.v1 v1.66.3 // indirect
+	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gorm.io/driver/mysql v1.2.3
 	gorm.io/gorm v1.22.5
 

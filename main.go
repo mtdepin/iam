@@ -25,6 +25,14 @@ func main() {
 		panic(err)
 		return
 	}
+
+	//init logger
+	level := config.GetString("logger.level")
+	if level == "" {
+		level = "info"
+	}
+	logger.InitLogger(level)
+
 	datastore.InitDB()
 	internal.Start()
 
@@ -34,6 +42,8 @@ func main() {
 	// register router
 	internal.RegisterAdminRouter(router)
 	internal.RegisterSTSRouter(router)
+
+
 
 	//包装的handler，处理定义之外的请求
 	wrappedHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
