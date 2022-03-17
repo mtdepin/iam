@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  mt-iam:
+    image: 192.168.1.214:443/iam/mt-iam
+    container_name: mt-iam
+    restart: always
+    ports:
+      - "10001:10001"
+    volumes:
+      - /home/mtyw/docker/mt-iam/conf:/iam/conf
+      - /home/mtyw/docker/mt-iam/log:/iam/log
