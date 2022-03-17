@@ -219,8 +219,38 @@ func getSessionToken(r *http.Request) (token string) {
 	}
 	return r.URL.Query().Get(xhttp.AmzSecurityToken)
 }
-func MustGetClaimsFromToken(r *http.Request) map[string]interface{} {
-	return mustGetClaimsFromToken(r)
+func MustGetClaimsFromToken(r *http.Request) (auth.Credentials, bool, map[string]interface{}, APIErrorCode) {
+	return mustGetClaimsFromToken_2(r)
+}
+
+// Fetch claims in the security token returned by the client, doesn't return
+// errors - upon errors the returned claims map will be empty.
+func mustGetClaimsFromToken_2(r *http.Request) (auth.Credentials, bool, map[string]interface{}, APIErrorCode) {
+	var cred auth.Credentials
+	var owner bool
+	if isRequestSignatureV2(r) {
+		c, own, s3Err := getReqAccessKeyV2(r)
+		if s3Err != ErrNone {
+			return auth.Credentials{}, false, nil, s3Err
+		}
+		cred = c
+		owner = own
+
+		claims, _ := checkClaimsFromToken(r, cred)
+		return cred, owner, claims, ErrNone
+	} else if isRequestSignatureV4(r) {
+		c, own, s3Err := getReqAccessKeyV4(r, "", serviceS3)
+		if s3Err != ErrNone {
+			return auth.Credentials{}, false, nil, s3Err
+		}
+		cred = c
+		owner = own
+		claims, _ := checkClaimsFromToken(r, cred)
+		return cred, owner, claims, ErrNone
+	}
+
+	claims, _ := getClaimsFromToken(getSessionToken(r), cred)
+	return cred, owner, claims, ErrNone
 }
 
 // Fetch claims in the security token returned by the client, doesn't return

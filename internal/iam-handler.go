@@ -2,6 +2,7 @@ package internal
 
 import (
 	"encoding/json"
+	"mt-iam/internal/auth"
 	xhttp "mt-iam/internal/http"
 	"mt-iam/pkg/logger"
 	"net/http"
@@ -20,8 +21,27 @@ func (a iamAPIHandlers) ClaimInfoHandler(w http.ResponseWriter, r *http.Request)
 
 	//把前缀去掉
 	r.RequestURI = strings.Replace(r.RequestURI, "/claim", "", 1)
-	claims := MustGetClaimsFromToken(r)
-	result, _ := json.Marshal(claims)
+
+	atype := getRequestAuthType(r)
+	ar := AuthResult{
+		authType: atype,
+		Cred:     auth.Credentials{},
+		Owner:    false,
+		Claims:   nil,
+	}
+	if atype != authTypeUnknown {
+		cred, owner, claims, s3Err := MustGetClaimsFromToken(r)
+		if s3Err != ErrNone {
+			writeErrorResponse(ctx, w, errorCodes.ToAPIErr(s3Err), r.URL)
+			return
+		}
+		cred.SecretKey = ""
+		cred.SessionToken = ""
+		ar.Cred = cred
+		ar.Owner = owner
+		ar.Claims = claims
+	}
+	result, _ := json.Marshal(ar)
 	logger.Infof("result: %s", result)
 
 	writeSuccessResponseJSON(w, result)
@@ -35,8 +55,6 @@ func (a iamAPIHandlers) AuthInfoHandler(w http.ResponseWriter, r *http.Request) 
 	printReqInfo(r)
 	r.RequestURI = strings.Replace(r.RequestURI, "/auth", "", 1)
 	r.URL.Path = strings.Replace(r.URL.Path, "/auth", "", 1)
-
-
 
 	//r.Host = "192.168.1.135:9000"
 	IsAllowed(w, r)

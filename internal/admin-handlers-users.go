@@ -1054,10 +1054,11 @@ func (a adminAPIHandlers) RemoveCannedPolicy(w http.ResponseWriter, r *http.Requ
 }
 
 type AuthResult struct {
-	Cred    auth.Credentials
-	Owner   bool
-	Allowed bool
-	Claims  map[string]interface{}
+	authType authType
+	Cred     auth.Credentials
+	Owner    bool
+	Allowed  bool
+	Claims   map[string]interface{}
 }
 
 func IsAllowed(w http.ResponseWriter, r *http.Request) {
