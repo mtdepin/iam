@@ -26,8 +26,8 @@ build testing:
   script:
     - go mod tidy
     - make  build
-    - docker build  -t 192.168.1.214:443/iam/mt-iam:latest .
-    - docker push 192.168.1.214:443/iam/mt-iam:latest
+    - docker build  -t 192.168.1.214:443/iam/mt:latest .
+    - docker push 192.168.1.214:443/iam/mt:latest
 
 
 
