@@ -2,7 +2,8 @@ package internal
 
 import (
 	"encoding/json"
-	http2 "mt-iam/internal/http"
+	"mt-iam/internal/auth"
+	xhttp "mt-iam/internal/http"
 	"mt-iam/pkg/logger"
 	"net/http"
 	"strings"
@@ -12,37 +13,46 @@ import (
 // ----------
 // Get claim information
 func (a iamAPIHandlers) ClaimInfoHandler(w http.ResponseWriter, r *http.Request) {
+	logger.Info("==> ClaimInfoHandler")
+	printReqInfo(r)
 	ctx := newContext(r, w, "ServerInfo")
 
 	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
 
 	//把前缀去掉
 	r.RequestURI = strings.Replace(r.RequestURI, "/claim", "", 1)
-	token := MustGetClaimsFromToken(r)
-	// todo 处理异常结果返回
-	if token != nil {
-		//写入返回结果
-		w.Header().Set(http2.ContentType, "content-type/json")
-		w.WriteHeader(200)
-		result, _ := json.Marshal(token)
-		_, _ = w.Write(result)
-		w.(http.Flusher).Flush()
-		return
-	}
-	w.Header().Set(http2.ContentType, "content-type/json")
-	w.WriteHeader(200)
-	_, _ = w.Write([]byte(""))
-	w.(http.Flusher).Flush()
 
-	// Reply with storage information (across nodes in a
-	// distributed setup) as json.
-	writeSuccessResponseJSON(w, []byte{})
+	atype := getRequestAuthType(r)
+	ar := AuthResult{
+		authType: atype,
+		Cred:     auth.Credentials{},
+		Owner:    false,
+		Claims:   nil,
+	}
+	if atype != authTypeUnknown {
+		cred, owner, claims, s3Err := MustGetClaimsFromToken(r)
+		if s3Err != ErrNone {
+			writeErrorResponse(ctx, w, errorCodes.ToAPIErr(s3Err), r.URL)
+			return
+		}
+		cred.SecretKey = ""
+		cred.SessionToken = ""
+		ar.Cred = cred
+		ar.Owner = owner
+		ar.Claims = claims
+	}
+	result, _ := json.Marshal(ar)
+	logger.Infof("result: %s", result)
+
+	writeSuccessResponseJSON(w, result)
 }
 
 // AuthInfoHandler - GET /minio/admin/v3/info
 // ----------
 // Get auth information
 func (a iamAPIHandlers) AuthInfoHandler(w http.ResponseWriter, r *http.Request) {
+	logger.Info("==> AuthInfoHandler")
+	printReqInfo(r)
 	r.RequestURI = strings.Replace(r.RequestURI, "/auth", "", 1)
 	r.URL.Path = strings.Replace(r.URL.Path, "/auth", "", 1)
 
@@ -54,8 +64,17 @@ func (a iamAPIHandlers) AuthInfoHandler(w http.ResponseWriter, r *http.Request) 
 // ----------
 // ValidateSignatureHandler
 func (a iamAPIHandlers) ValidateSignatureHandler(w http.ResponseWriter, r *http.Request) {
+	logger.Info("==> ValidateSignatureHandler")
+	printReqInfo(r)
 	r.RequestURI = strings.Replace(r.RequestURI, "/validateSignature", "", 1)
 	r.URL.Path = strings.Replace(r.URL.Path, "/validateSignature", "", 1)
 
 	ValidateSignature(w, r)
+}
+
+func printReqInfo(r *http.Request) {
+	authToken := r.Header.Get(xhttp.Authorization)
+	logger.Infof("request RequestURI: %s", r.RequestURI)
+	logger.Infof("request authToken: %s", authToken)
+
 }

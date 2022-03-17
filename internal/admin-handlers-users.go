@@ -673,7 +673,6 @@ func (a adminAPIHandlers) UpdateServiceAccount(w http.ResponseWriter, r *http.Re
 
 	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
 
-
 	cred, claims, owner, s3Err := validateAdminSignature(ctx, r, "")
 	if s3Err != ErrNone {
 		writeErrorResponseJSON(ctx, w, errorCodes.ToAPIErr(s3Err), r.URL)
@@ -836,7 +835,6 @@ func (a adminAPIHandlers) ListServiceAccounts(w http.ResponseWriter, r *http.Req
 	ctx := newContext(r, w, "ListServiceAccounts")
 
 	defer logger.AuditLog(ctx, w, r, mustGetClaimsFromToken(r))
-
 
 	cred, claims, owner, s3Err := validateAdminSignature(ctx, r, "")
 	if s3Err != ErrNone {
@@ -1056,10 +1054,11 @@ func (a adminAPIHandlers) RemoveCannedPolicy(w http.ResponseWriter, r *http.Requ
 }
 
 type AuthResult struct {
-	Cred    auth.Credentials
-	Owner   bool
-	Allowed bool
-	Claims  map[string]interface{}
+	authType authType
+	Cred     auth.Credentials
+	Owner    bool
+	Allowed  bool
+	Claims   map[string]interface{}
 }
 
 func IsAllowed(w http.ResponseWriter, r *http.Request) {
@@ -1081,7 +1080,6 @@ func IsAllowed(w http.ResponseWriter, r *http.Request) {
 		//	writeErrorResponse(ctx, w, errorCodes.ToAPIErr(s3Err), r.URL)
 		//}
 		cred, owner, s3Err = getReqAccessKeyV4(r, "", serviceS3)
-
 
 		//writeErrorResponse(ctx, w, errorCodes.ToAPIErr(ErrSignatureVersionNotSupported), r.URL)
 		//return
