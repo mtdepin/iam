@@ -1,0 +1,54 @@
+stages:
+  - buildMinio
+  - deploy
+
+build dev:
+  stage: buildMinio
+  retry: 1 # 重试一次
+  tags:
+    - runner193
+  only:
+    - develop
+  script:
+    - go mod tidy
+    - make  build
+    - docker build  -t 192.168.1.214:443/iam/mt-iam:latest .
+    - docker push 192.168.1.214:443/iam/mt-iam:latest
+
+
+build testing:
+  stage: buildMinio
+  retry: 1 # 重试一次
+  tags:
+    - runner194
+  only:
+    - release
+  script:
+    - go mod tidy
+    - make  build
+    - docker build  -t 192.168.1.214:443/iam/mt-iam:latest .
+    - docker push 192.168.1.214:443/iam/mt-iam:latest
+
+
+
+deploy testing:
+  stage: deploy
+  retry: 1 # 重试一次
+  tags:
+    - runner193
+  only:
+    - develop  # 只对dev分支起作用
+  script:
+    - docker-compose down && docker-compose up -d
+
+
+deploy dev:
+  stage: deploy
+  retry: 1 # 重试一次
+  when: manual
+  tags:
+    - runner194
+  only:
+    - release  # 只对dev分支起作用
+  script:
+    - docker-compose down && docker-compose up -d
