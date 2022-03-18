@@ -13,4 +13,4 @@ build:
 # build
 docker:
 	go build -ldflags "-X main.Version=$(VERSION)"
-	docker build  -t 192.168.1.214:443/iam:latest .
+	docker build  -t 192.168.1.214:443/iam/mt-iam:latest .

@@ -4,5 +4,7 @@ ENV WORK_HOME /iam
 COPY mt-iam /iam
 COPY ./conf /iam/conf
 WORKDIR $WORK_HOME
+VOLUME /iam/conf
+VOLUME /iam/logs
 EXPOSE 10001
 CMD ["./mt-iam"]

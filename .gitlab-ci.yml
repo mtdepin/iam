@@ -1,0 +1,27 @@
+stages:
+  - deploy
+
+
+deploy testing:
+  stage: deploy
+  retry: 1 # 重试一次
+  when: manual
+  tags:
+    - runner194
+  only:
+    - master  # 只对dev分支起作用
+  script:
+    - go mod tidy
+    - make  docker
+    - docker-compose down && docker-compose up -d
+
+# deploy release:
+#   stage: deploy
+#   retry: 1 # 重试一次
+#   when: manual
+#   tags:
+#     - runner194
+#   only:
+#     - release  # 只对dev分支起作用
+#   script:
+#     - docker-compose down && docker-compose up -d

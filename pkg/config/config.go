@@ -32,7 +32,7 @@ func InitConfig() error {
 	confPath := curPath + "/conf/"
 	configInstance.AddConfigPath(confPath)
 	if !util.FileExists(confPath + "config.yml") {
-		fmt.Println(confPath + "config.json do not exist")
+		fmt.Println(confPath + "config.yml do not exist")
 	}
 	configInstance.SetConfigName("config")
 	if err := configInstance.ReadInConfig(); err != nil {
