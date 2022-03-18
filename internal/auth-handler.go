@@ -249,6 +249,19 @@ func mustGetClaimsFromToken_2(r *http.Request) (auth.Credentials, bool, map[stri
 		return cred, owner, claims, ErrNone
 	}
 
+	switch getRequestAuthType(r) {
+	case authTypeSigned, authTypePresigned:
+		cred, owner, s3Err := getReqAccessKeyV4(r, "", serviceS3)
+		if s3Err != ErrNone {
+			return auth.Credentials{}, false, nil, s3Err
+		}
+
+		claims, _ := checkClaimsFromToken(r, cred)
+
+		return cred, owner, claims, ErrNone
+
+	}
+
 	claims, _ := getClaimsFromToken(getSessionToken(r), cred)
 	return cred, owner, claims, ErrNone
 }
