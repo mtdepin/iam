@@ -21,7 +21,7 @@ func RegisterIamRouter(router *mux.Router) {
 	iamAPI := iamAPIHandlers{}
 	// Admin router
 	iamRouter := router.PathPrefix("/claim").Subrouter()
-	iamRouter.Methods(http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete).HandlerFunc(httpTraceAll(iamAPI.ClaimInfoHandler))
+	iamRouter.Methods(http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodHead).HandlerFunc(httpTraceAll(iamAPI.ClaimInfoHandler))
 
 	iamRouter = router.PathPrefix("/auth").Subrouter()
 	iamRouter.Methods(http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete).HandlerFunc(httpTraceAll(iamAPI.AuthInfoHandler))

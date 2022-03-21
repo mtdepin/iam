@@ -1059,6 +1059,8 @@ type AuthResult struct {
 	Owner    bool
 	Allowed  bool
 	Claims   map[string]interface{}
+	TenantId int
+	ParentUserId int
 }
 
 func IsAllowed(w http.ResponseWriter, r *http.Request) {
@@ -1126,6 +1128,15 @@ func IsAllowed(w http.ResponseWriter, r *http.Request) {
 		Owner:   owner,
 		Allowed: allowed,
 		Claims:  claims,
+	}
+
+
+	if v , ok := getValue(claims, Ctx_TenantId) ; ok {
+		ar.TenantId = v
+	}
+
+	if v , ok := getValue(claims, Ctx_ParentUserId) ; ok {
+		ar.ParentUserId = v
 	}
 
 	result, _ := json.Marshal(ar)
