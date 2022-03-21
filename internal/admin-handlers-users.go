@@ -1130,6 +1130,15 @@ func IsAllowed(w http.ResponseWriter, r *http.Request) {
 		Claims:  claims,
 	}
 
+
+	if v , ok := getValue(claims, Ctx_TenantId) ; ok {
+		ar.TenantId = v
+	}
+
+	if v , ok := getValue(claims, Ctx_ParentUserId) ; ok {
+		ar.ParentUserId = v
+	}
+
 	result, _ := json.Marshal(ar)
 	writeSuccessResponseJSON(w, result)
 
