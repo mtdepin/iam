@@ -191,6 +191,8 @@ func nopCharsetConverter(label string, input io.Reader) (io.Reader, error) {
 }
 
 const Ctx_TenantId = "TenantId"
+const Ctx_ParentUserId = "ParentUserId"
+
 
 // dump the request into a string in JSON format.
 func dumpRequest(r *http.Request) string {

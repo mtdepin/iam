@@ -1059,6 +1059,8 @@ type AuthResult struct {
 	Owner    bool
 	Allowed  bool
 	Claims   map[string]interface{}
+	TenantId int
+	ParentUserId int
 }
 
 func IsAllowed(w http.ResponseWriter, r *http.Request) {

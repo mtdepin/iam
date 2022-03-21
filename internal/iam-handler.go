@@ -40,11 +40,29 @@ func (a iamAPIHandlers) ClaimInfoHandler(w http.ResponseWriter, r *http.Request)
 		ar.Cred = cred
 		ar.Owner = owner
 		ar.Claims = claims
+
+		if v , ok := getValue(claims, Ctx_TenantId) ; ok {
+			ar.TenantId = v
+		}
+
+		if v , ok := getValue(claims, Ctx_ParentUserId) ; ok {
+			ar.ParentUserId = v
+		}
 	}
 	result, _ := json.Marshal(ar)
 	logger.Infof("result: %s", result)
 
 	writeSuccessResponseJSON(w, result)
+}
+
+func getValue(claims map[string]interface{}, key string) (int, bool) {
+	value, ok := claims[key]
+	if ok {
+		if na, ok := value.(float64); ok {
+			return int(na), ok
+		}
+	}
+	return 0, false
 }
 
 // AuthInfoHandler - GET /minio/admin/v3/info
