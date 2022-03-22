@@ -51,6 +51,7 @@ var errNoSuchUser = errors.New("Specified user does not exist")
 
 // error returned when service account is not found
 var errNoSuchServiceAccount = errors.New("Specified service account does not exist")
+var errNotAllowed = errors.New("This account cannot be deleted")
 
 // error returned in IAM subsystem when groups doesn't exist.
 var errNoSuchGroup = errors.New("Specified group does not exist")
