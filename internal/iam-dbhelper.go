@@ -1687,6 +1687,9 @@ func (sys *IAMSys) DeleteServiceAccount(ctx context.Context, accessKey string) e
 		return errNoSuchServiceAccount
 	}
 
+	if user.TenantId == 0 {
+		return errNotAllowed
+	}
 	// It is ok to ignore deletion error on the mapped policy
 	err := deleteUserIdentity(accessKey, svcUser)
 	if err != nil && err != errNoSuchUser {
