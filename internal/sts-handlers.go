@@ -1,5 +1,3 @@
-
-
 package internal
 
 import (
@@ -745,7 +743,7 @@ func (sts *stsAPIHandlers) AddTenant(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	secretStr := hex.EncodeToString(secret)
-	cred, err := auth.CreateCredentials(tenantName, secretStr)
+	cred, err := auth.CreateCredentials(accessKey, secretStr)
 	if err != nil {
 		logger.Error("create credential failed")
 		return
