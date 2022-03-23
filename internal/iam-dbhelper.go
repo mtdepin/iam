@@ -1514,7 +1514,7 @@ func (sys *IAMSys) UpdateServiceAccount(ctx context.Context, tenantName, accessK
 }
 
 // ListServiceAccounts - lists all services accounts associated to a specific user
-func (sys *IAMSys) ListServiceAccounts(ctx context.Context, accessKey string) ([]auth.Credentials, error) {
+func (sys *IAMSys) ListServiceAccounts(ctx context.Context, accessKey string, filter ...string) ([]auth.Credentials, error) {
 	if !sys.Initialized() {
 		return nil, errServerNotInitialized
 	}
@@ -1532,7 +1532,7 @@ func (sys *IAMSys) ListServiceAccounts(ctx context.Context, accessKey string) ([
 	}
 	// find service account
 	var serviceAccounts []auth.Credentials
-	svcs := user.GetServiceAccounts()
+	svcs := user.GetServiceAccounts(filter)
 	if svcs == nil {
 		return nil, errors.New("database err: get service accounts failed")
 	}

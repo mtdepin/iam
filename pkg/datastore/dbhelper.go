@@ -185,7 +185,7 @@ func (a *MtAccount) GetAccount() *MtAccount {
 }
 
 // for finding svc users.
-func (a *MtAccount) GetServiceAccounts() []*MtAccount {
+func (a *MtAccount) GetServiceAccounts(filter []string) []*MtAccount {
 	if a == nil {
 		return nil
 	}
@@ -193,7 +193,7 @@ func (a *MtAccount) GetServiceAccounts() []*MtAccount {
 	//todo 判断 ParentUser 是原因？
 	//if a.Ctype != svcUser && a.ParentUser != 0 {
 	if a.Ctype != svcUser {
-		if err := GlobalDB.DB.Raw("SELECT * FROM t_mt_account WHERE ctype = ? AND parent_user = ?", svcUser, a.Uid).Find(&users).Error; err != nil {
+		if err := GlobalDB.DB.Raw("SELECT * FROM t_mt_account WHERE ctype = ? AND parent_user = ? AND username NOT IN ?", svcUser, a.Uid, filter).Find(&users).Error; err != nil {
 			return nil
 		}
 	}

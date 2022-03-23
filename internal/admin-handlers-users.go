@@ -864,7 +864,7 @@ func (a adminAPIHandlers) ListServiceAccounts(w http.ResponseWriter, r *http.Req
 		}
 	}
 
-	serviceAccounts, err := GlobalIAMSys.ListServiceAccounts(ctx, targetAccount)
+	serviceAccounts, err := GlobalIAMSys.ListServiceAccounts(ctx, targetAccount, cred.AccessKey)
 	if err != nil {
 		writeErrorResponseJSON(ctx, w, toAdminAPIErr(ctx, err), r.URL)
 		return
@@ -1054,12 +1054,12 @@ func (a adminAPIHandlers) RemoveCannedPolicy(w http.ResponseWriter, r *http.Requ
 }
 
 type AuthResult struct {
-	authType authType
-	Cred     auth.Credentials
-	Owner    bool
-	Allowed  bool
-	Claims   map[string]interface{}
-	TenantId int
+	authType     authType
+	Cred         auth.Credentials
+	Owner        bool
+	Allowed      bool
+	Claims       map[string]interface{}
+	TenantId     int
 	ParentUserId int
 }
 
@@ -1130,12 +1130,11 @@ func IsAllowed(w http.ResponseWriter, r *http.Request) {
 		Claims:  claims,
 	}
 
-
-	if v , ok := getValue(claims, Ctx_TenantId) ; ok {
+	if v, ok := getValue(claims, Ctx_TenantId); ok {
 		ar.TenantId = v
 	}
 
-	if v , ok := getValue(claims, Ctx_ParentUserId) ; ok {
+	if v, ok := getValue(claims, Ctx_ParentUserId); ok {
 		ar.ParentUserId = v
 	}
 
