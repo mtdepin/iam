@@ -9,11 +9,12 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
-	db "mt-iam/pkg/datastore"
-	"mt-iam/pkg/logger"
 	"net/http"
 	"strconv"
 	"strings"
+
+	db "mt-iam/pkg/datastore"
+	"mt-iam/pkg/logger"
 
 	"github.com/gorilla/mux"
 	"mt-iam/internal/auth"
@@ -660,7 +661,6 @@ func (sts *stsAPIHandlers) AddTenant(w http.ResponseWriter, r *http.Request) {
 	userQuotaStr := vars[stsUserQuota]
 	rsign := vars[stsSign]
 
-
 	// check sign
 	newSign := requestSign(tenantName + accessKey + secretKey + userQuotaStr)
 	//newSign := requestSign(tenantName + accessKey + secretKey )
@@ -744,7 +744,7 @@ func (sts *stsAPIHandlers) AddTenant(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	secretStr := hex.EncodeToString(secret)
-	cred, err := auth.CreateCredentials(accessKey, secretStr)
+	cred, err := auth.CreateCredentials(tenantName, secretStr)
 	if err != nil {
 		logger.Error("create credential failed")
 		return
