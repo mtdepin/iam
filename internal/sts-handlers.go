@@ -657,8 +657,9 @@ func (sts *stsAPIHandlers) AddTenant(w http.ResponseWriter, r *http.Request) {
 	tenantName := vars[stsTenantName]
 	accessKey := vars[stsAccessKey]
 	secretKey := vars[stsSecretKey]
-	rsign := vars[stsSign]
 	userQuotaStr := vars[stsUserQuota]
+	rsign := vars[stsSign]
+
 
 	// check sign
 	newSign := requestSign(tenantName + accessKey + secretKey + userQuotaStr)
@@ -694,9 +695,6 @@ func (sts *stsAPIHandlers) AddTenant(w http.ResponseWriter, r *http.Request) {
 	quota, err := checkValidQuota(userQuotaStr)
 	if err != nil {
 		writeErrorResponse(ctx, w, errorCodes.ToAPIErr(ErrAdminInvalidArgument), r.URL)
-		if err != nil {
-			return
-		}
 		return
 	}
 
@@ -704,12 +702,15 @@ func (sts *stsAPIHandlers) AddTenant(w http.ResponseWriter, r *http.Request) {
 	tenantUser := db.GetMtAccount(tenantName)
 	if tenantUser == nil {
 		logger.Error("database err: get mt_account failed")
+		writeErrorResponse(ctx, w, errorCodes.ToAPIErr(ErrInternalError), r.URL)
+
 		return
 	}
 	// get svc account
 	tenantSvc := db.GetMtAccount(accessKey)
 	if tenantSvc == nil {
 		logger.Error("database err: get mt_account failed")
+		writeErrorResponse(ctx, w, errorCodes.ToAPIErr(ErrInternalError), r.URL)
 		return
 	}
 	// check if tenant or access key exists
@@ -750,6 +751,7 @@ func (sts *stsAPIHandlers) AddTenant(w http.ResponseWriter, r *http.Request) {
 	}
 
 	svcCred, err := GlobalIAMSys.CreateTenant(&cred, quota, func(claims map[string]interface{}) (c auth.Credentials, err error) {
+		//生成租户 默认的 svc 证书
 		c, err = auth.CreateNewCredentialsWithMetadata(accessKey, secretKey, claims, cred.SecretKey)
 		return c, err
 	})

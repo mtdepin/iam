@@ -230,10 +230,13 @@ func (a *MtAccount) GetGroupsByAccount() []*Group {
 }
 
 const (
-	// tenant
+	// tenant 租户
 	tenant int = iota + 1
+	//注册账户
 	regUser
+	//svc账户
 	svcUser
+	//sts 账户
 	stsUser
 )
 
@@ -591,6 +594,8 @@ func (c *Credential) StoreTenantInfo(quota int, svcGenFunc func(map[string]inter
 		if dbCred.AccessKey == "" || dbCred.AccessKey != c.AccessKey {
 			return errors.New("specified user does not exist")
 		}
+
+		//生成租户的账户，CredId 为对应证书id， Ctype 为租户类型
 		tenantUser := MtAccount{
 			Username: c.AccessKey,
 			Password: dbCred.SecretKey,
@@ -621,7 +626,7 @@ func (c *Credential) StoreTenantInfo(quota int, svcGenFunc func(map[string]inter
 			return err
 		}
 
-		// get admin policy id
+		// get admin policy id 查询 consoleAdmin 默认的策略
 		var policies []*Policy
 		if err := tx.Raw("SELECT * FROM t_policy WHERE name = ?", "consoleAdmin").Find(&policies).Error; err != nil {
 			return err
@@ -629,7 +634,7 @@ func (c *Credential) StoreTenantInfo(quota int, svcGenFunc func(map[string]inter
 		if len(policies) == 0 {
 			return errors.New("admin policy does not exists")
 		}
-		// create admin policy-account
+		// create admin policy-account 把这些 consoleAdmin 默认策略分配给新创建的租户
 		for _, p := range policies {
 			pa := PolicyAccount{
 				PolicyId: p.ID,
@@ -649,8 +654,10 @@ func (c *Credential) StoreTenantInfo(quota int, svcGenFunc func(map[string]inter
 		return nil
 	})
 
+	//如果需要创建 租户 默认的 svc 账户,则创建
 	if svcGenFunc != nil {
 		err = GlobalDB.DB.Transaction(func(tx *gorm.DB) error {
+			//生成claims 信息
 			m := make(map[string]interface{})
 			m["parent"] = c.AccessKey
 			//adminpolicy := iampolicy.DefaultPolicies[3] //Admin
@@ -668,7 +675,6 @@ func (c *Credential) StoreTenantInfo(quota int, svcGenFunc func(map[string]inter
 				m["sa-policy"] = "inherited-policy"
 			}
 
-			//add by lyc begin
 			mtAccount := GetMtAccount(c.AccessKey)
 			if mtAccount == nil {
 				logger2.Error("database err: get mt_account failed")
@@ -688,8 +694,9 @@ func (c *Credential) StoreTenantInfo(quota int, svcGenFunc func(map[string]inter
 				m["ParentUserId"] = mtAccount.Uid
 				m["UserQuota"] = 20
 			}
+			// 生成svc 的证书（cred）
 			svcCred, err = svcGenFunc(m)
-			//svc cred
+			//svc cred 将证书（cred）插入到库里
 			svcCred.SecretKey = crypto.PasswordEncrypt(svcCred.SecretKey)
 			svc := &Credential{
 				Version:      c.Version,
@@ -700,14 +707,14 @@ func (c *Credential) StoreTenantInfo(quota int, svcGenFunc func(map[string]inter
 				Status:       c.Status,
 			}
 
-			// create svc cred
+			// create svc cred 指定 svc账户的 ParentUser 为租户的 Uid
 			svc.ParentUser = mtAccount.Uid
 			if err := tx.Exec("INSERT INTO t_credential (version, access_key, secret_key, session_token, status, parent_user) VALUES (?,?,?,?,?,?)",
 				svc.Version, svc.AccessKey, svc.SecretKey, svc.SessionToken, svc.Status, svc.ParentUser).Error; err != nil {
 				return err
 			}
 
-			// find cred id
+			// find cred id （查询id）
 			var newSvcCred Credential
 			if err := tx.Raw("SELECT * FROM t_credential WHERE access_key = ?", svc.AccessKey).Find(&newSvcCred).Error; err != nil {
 				return nil
@@ -716,14 +723,17 @@ func (c *Credential) StoreTenantInfo(quota int, svcGenFunc func(map[string]inter
 				return errors.New("specified user does not exist")
 			}
 
+			//插入svc 账户， CredId 为对应证书的id， Ctype为svc账户类型
 			user := MtAccount{
-				Username:   newSvcCred.AccessKey,
-				Password:   newSvcCred.SecretKey,
-				CredId:     newSvcCred.ID,
-				Version:    newSvcCred.Version,
-				Ctype:      svcUser,
+				Username: newSvcCred.AccessKey,
+				Password: newSvcCred.SecretKey,
+				CredId:   newSvcCred.ID,
+				Version:  newSvcCred.Version,
+				Ctype:    svcUser,
+				//ParentUser 父用户在这里指定为为该租户Uid（因为是租户直接创建的第一个svc账户）
 				ParentUser: mtAccount.Uid,
-				TenantId:   mtAccount.Uid,
+				//TenantId 为租户 Uid
+				TenantId: mtAccount.Uid,
 			}
 			// create svc account
 			err = tx.Exec("INSERT INTO t_mt_account (username, password, cred_id, version, ctype, parent_user, tenant_id) VALUES (?,?,?,?,?,?,?)",
