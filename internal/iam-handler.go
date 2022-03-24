@@ -35,7 +35,7 @@ func (a iamAPIHandlers) ClaimInfoHandler(w http.ResponseWriter, r *http.Request)
 			writeErrorResponse(ctx, w, errorCodes.ToAPIErr(s3Err), r.URL)
 			return
 		}
-		cred.SecretKey = ""
+		//cred.SecretKey = ""
 		cred.SessionToken = ""
 		ar.Cred = cred
 		ar.Owner = owner
