@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"encoding/base64"
+	"fmt"
+	"mt-iam/pkg/logger"
 )
 
 const (
@@ -37,37 +40,35 @@ const (
 
 func PasswordEncrypt(password string) string {
 	// 不对空字符串加密
-	//if password == "" {
-	//	return password
-	//}
-	//xpass, err := aesEncrypt([]byte(password), []byte(salt))
-	//if err != nil {
-	//	logger.Error("密码加密失败", err)
-	//	return ""
-	//}
-	//pass64 := base64.StdEncoding.EncodeToString(xpass)
-	//return pass64
-	return password
+	if password == "" {
+		return password
+	}
+	xpass, err := aesEncrypt([]byte(password), []byte(salt))
+	if err != nil {
+		logger.Error("密码加密失败", err)
+		return ""
+	}
+	pass64 := base64.StdEncoding.EncodeToString(xpass)
+	return pass64
 }
 
 func PasswordDecrypt(password string) string {
 	// 不对空字符串解密
-	//if password == "" {
-	//	return password
-	//}
-	//bytesPass, err := base64.StdEncoding.DecodeString(password)
-	//if err != nil {
-	//	logger.Error("密码解密失败", err)
-	//	return ""
-	//}
-	//
-	//t, err := aesDecrypt(bytesPass, []byte(salt))
-	//if err != nil {
-	//	logger.Error("密码解密失败", err)
-	//	return ""
-	//}
-	//return fmt.Sprintf("%s", t)
-	return password
+	if password == "" {
+		return password
+	}
+	bytesPass, err := base64.StdEncoding.DecodeString(password)
+	if err != nil {
+		logger.Error("密码解密失败", err)
+		return ""
+	}
+
+	t, err := aesDecrypt(bytesPass, []byte(salt))
+	if err != nil {
+		logger.Error("密码解密失败", err)
+		return ""
+	}
+	return fmt.Sprintf("%s", t)
 }
 
 //@brief:填充明文
